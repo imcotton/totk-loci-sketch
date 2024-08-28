@@ -1,0 +1,29 @@
+{
+  "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
+  "name": "@imcotton/totk-loci-sketch",
+  "version": "0.1.0",
+  "license": "MIT",
+  "imports": {
+    "dedent": "npm:dedent@^1.5.3",
+    "valibot": "jsr:@valibot/valibot@~0.39.0"
+  },
+  "exports": {
+    ".": "./mod.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "lock": false,
+  "publish": {
+    "include": [
+      "./mod.ts",
+      "./LICENSE.txt",
+      "./README.md",
+      "./deno.json"
+    ]
+  }
+}
