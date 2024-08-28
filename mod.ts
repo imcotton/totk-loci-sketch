@@ -186,20 +186,13 @@ function refine (src: string) {
 
 
 
-function make ({ issue, title, intro, image, coordinates }: {
+export function make ({ issue, title, intro, image, coordinates }: Inputs): {
 
-        issue: number
-        title: string,
-        intro: string,
-        image: string,
+        slug: string,
+        full: string,
+        body: string,
 
-        coordinates: [
-            x: string,
-            y: string,
-            z: string,
-        ],
-
-}) {
+} {
 
     const [ x, y, z ] = coordinates;
 
