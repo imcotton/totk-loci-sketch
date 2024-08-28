@@ -1,5 +1,3 @@
-import { env } from 'node:process';
-
 import dedent from 'dedent';
 
 import * as v from 'valibot';
@@ -26,7 +24,7 @@ export async function main (raw: Inputs, {
 
         posts = 'https://mataroa.blog/api/posts',
 
-        token = env.MATAROA_API_KEY,
+        token = '__UNSET__',
 
         draft = true,
 
@@ -71,7 +69,7 @@ const inputs = v.object({
 function post ({ posts, token, draft }: {
 
         posts: string,
-        token?: string,
+        token: string,
         draft?: boolean,
 
 }) {
@@ -118,14 +116,10 @@ function post ({ posts, token, draft }: {
 async function send (url: string, { method, token, data }: {
 
         method: 'POST' | 'PATCH',
-        token?: string,
+        token: string,
         data: object,
 
 }) {
-
-    if (token == null) {
-        throw new Error('token required');
-    }
 
     const res = await fetch(url, {
         method,
