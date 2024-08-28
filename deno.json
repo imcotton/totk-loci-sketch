@@ -10,6 +10,9 @@
   "exports": {
     ".": "./mod.ts"
   },
+  "tasks": {
+    "post": "./draft.ts"
+  },
   "compilerOptions": {
     "strict": true,
     "noImplicitAny": true,
