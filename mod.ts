@@ -8,11 +8,11 @@ import * as v from 'valibot';
 
 export interface Inputs {
 
-    readonly issue: number,
-    readonly title: string,
-    readonly intro: string,
-    readonly image: string,
-    readonly coordinates: [ x: string, y: string, z: string ],
+    readonly issue: number;
+    readonly title: string;
+    readonly intro: string;
+    readonly image: string;
+    readonly coordinates: [ x: string, y: string, z: string ];
 
 }
 
