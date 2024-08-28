@@ -23,5 +23,5 @@ jobs:
         with:
           deno-version: v1
 
-      - run: deno publish
+      - run: deno publish --allow-slow-types
 
