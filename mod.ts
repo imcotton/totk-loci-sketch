@@ -8,6 +8,20 @@ import * as v from 'valibot';
 
 
 
+export interface Inputs {
+
+    readonly issue: number,
+    readonly title: string,
+    readonly intro: string,
+    readonly image: string,
+    readonly coordinates: [ x: string, y: string, z: string ],
+
+}
+
+
+
+
+
 export async function main (raw: Inputs, {
 
         posts = 'https://mataroa.blog/api/posts',
@@ -37,8 +51,6 @@ export async function main (raw: Inputs, {
 
 
 
-
-type Inputs = v.InferInput<typeof inputs>;
 
 const digits = v.pipe(v.string(), v.regex(/^-?\d{4}/));
 
