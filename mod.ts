@@ -1,3 +1,3 @@
-export { main } from './main.ts';
+export { main, type Inputs } from './main.ts';
 export { make } from './make.ts';
 
