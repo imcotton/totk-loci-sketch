@@ -24,6 +24,8 @@
   "publish": {
     "include": [
       "./mod.ts",
+      "./main.ts",
+      "./make.ts",
       "./LICENSE.txt",
       "./README.md",
       "./deno.json"
