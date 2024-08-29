@@ -8,6 +8,8 @@
     "valibot": "jsr:@valibot/valibot@~0.39.0"
   },
   "exports": {
+    "./main": "./main.ts",
+    "./make": "./make.ts",
     ".": "./mod.ts"
   },
   "tasks": {
