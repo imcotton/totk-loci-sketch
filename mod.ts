@@ -1,4 +1,4 @@
-import dedent from 'dedent';
+import dedent from 'strip-indent';
 
 import * as v from 'valibot';
 
