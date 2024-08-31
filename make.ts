@@ -22,7 +22,7 @@ export function make ({ integrity }: {
 
         integrity: (_: Checksum) => string,
 
-}): (_: Inputs & { checksum: Checksum }) => Outputs {
+}): (_: Inputs & { readonly checksum: Checksum }) => Outputs {
 
     return function ({ issue, title, intro, image, checksum, coordinates }) {
 
