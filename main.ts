@@ -16,7 +16,7 @@ export interface Inputs {
     readonly title: string;
     readonly intro: string;
     readonly image: string;
-    readonly coordinates: [ x: string, y: string, z: string ];
+    readonly coordinates: readonly [ x: string, y: string, z: string ];
 
 }
 
@@ -85,7 +85,7 @@ const inputs = v.object({
     title: v.string(),
     intro: v.string(),
     image: v.pipe(v.string(), v.transform(refine_image)),
-    coordinates: v.tuple([ digits, digits, digits ]),
+    coordinates: v.pipe(v.tuple([ digits, digits, digits ]), v.readonly()),
 
 });
 
