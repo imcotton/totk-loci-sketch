@@ -1,3 +1,3 @@
-export { main, type Inputs } from './main.ts';
-export { make } from './make.ts';
+export { main, type Inputs, type Checksum } from './main.ts';
+export { make, type Outputs } from './make.ts';
 

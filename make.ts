@@ -1,54 +1,68 @@
 import dedent from 'strip-indent';
 
-import type { Inputs } from './main.ts';
+import type { Inputs, Checksum } from './main.ts';
 
 
 
 
 
-export function make ({ issue, title, intro, image, coordinates }: Inputs): {
+export interface Outputs {
 
-        slug: string;
-        full: string;
-        body: string;
+    readonly slug: string;
+    readonly full: string;
+    readonly body: string;
 
-} {
+}
 
-    const [x, y, z] = coordinates;
 
-    const [prev, slug, next] = pagination(issue);
 
-    const full = `${slug} ${title}`;
 
-    const src = refine(image);
 
-    const body = dedent(`
+export function make ({ integrity }: {
 
-        <p>${intro}</p>
+        integrity: (_: Checksum) => string,
 
-        <details>
+}): (_: Inputs & { checksum: Checksum }) => Outputs {
 
-            <summary>
-                <img src="${src}" title="${[x, y, z].join(',')}" />
-            </summary>
+    return function ({ issue, title, intro, image, checksum, coordinates }) {
 
-            <blockquote>
-                <code>${x}</code>,
-                <code>${y}</code>,
-                <code>${z}</code>
-            </blockquote>
+        const [ x, y, z ] = coordinates;
 
-        </details>
+        const [ prev, slug, next ] = pagination(issue);
 
-        <p>
-            <a href="../${prev}/">prev</a>
-            /
-            <a href="../${next}/">next</a>
-        </p>
+        const full = `${ slug } ${ title }`;
 
-    `);
+        const src = `${ image }#${ integrity(checksum) }`;
 
-    return { slug, full, body };
+        const body = dedent(`
+
+            <p>${ intro }</p>
+
+            <details>
+
+                <summary>
+                    <img src="${ src }" title="${ [ x, y, z ].join(',') }" />
+                </summary>
+
+                <blockquote>
+                    <code>${ x }</code>,
+                    <code>${ y }</code>,
+                    <code>${ z }</code>
+                </blockquote>
+
+            </details>
+
+            <p>
+                <a href="../${ prev }/">prev</a>
+                /
+                <a href="../${ next }/">next</a>
+            </p>
+
+        `);
+
+        return { slug, full, body };
+
+    };
 
 }
 
@@ -73,22 +87,6 @@ function pagination (n: number, {
         map(n + 0),
         map(n + 1),
     ] as const;
-
-}
-
-
-
-
-
-function refine (src: string) {
-
-    return Array.of<(_: string) => string>(
-
-        img => img.includes('.') ? img : img.concat('.jpeg'),
-
-        img => /^https?:\/\//i.test(img) ? img : '/images/'.concat(img),
-
-    ).reduce((x, f) => f(x), src);
 
 }
 
