@@ -6,7 +6,7 @@
   "imports": {
     "@std/encoding": "jsr:@std/encoding@^1.0.3",
     "strip-indent": "npm:strip-indent@^4.0.0",
-    "valibot": "npm:valibot@~0.40.0"
+    "valibot": "npm:valibot@~0.41.0"
   },
   "exports": {
     "./main": "./main.ts",
