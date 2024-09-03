@@ -120,29 +120,31 @@ function post ({ posts, token, draft }: {
         const date = new Date().toISOString().slice(0, 10);
         const published_at = draft === false ? date : undefined;
 
-        v.parse(
-            v.object({
-                ok: v.literal(true),
-                slug: v.literal(slug),
-            }),
-            await send(`${ posts }/`, {
-                token,
-                method: 'POST',
-                data: { body, published_at, title: slug },
-            }),
-        );
+        await send(`${ posts }/`, {
 
-        const { url } = v.parse(
-            v.object({
-                ok: v.literal(true),
-                url: v.pipe(v.string(), v.url()),
-            }),
-            await send(`${ posts }/${ slug }/`, {
-                token,
-                method: 'PATCH',
-                data: { title: full },
-            }),
-        );
+            token,
+            method: 'POST',
+            data: { body, published_at, title: slug },
+
+        }).then(v.parser(v.object({
+
+            ok: v.literal(true),
+            slug: v.literal(slug),
+
+        })));
+
+        const { url } = await send(`${ posts }/${ slug }/`, {
+
+            token,
+            method: 'PATCH',
+            data: { title: full },
+
+        }).then(v.parser(v.object({
+
+            ok: v.literal(true),
+            url: v.pipe(v.string(), v.url()),
+
+        })));
 
         return url;
 
