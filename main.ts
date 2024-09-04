@@ -107,36 +107,45 @@ async function fetch_checksum (prefix: string, src: string) {
 
 
 
+function now () {
+
+    return new Date().toISOString().slice(0, 10);
+
+}
+
+
+
+
+
 function post ({ posts, token, draft }: {
 
         posts: string,
         token: string,
-        draft?: boolean,
+        draft: boolean,
 
-}) {
+}): (_: Outputs) => Promise<string> {
 
-    return async function ({ slug, full, body }: Outputs) {
+    return async function ({ slug: title, full, body }) {
 
-        const date = new Date().toISOString().slice(0, 10);
-        const published_at = draft === false ? date : undefined;
-
-        await send(`${ posts }/`, {
+        await send('POST', `${ posts }/`, {
 
             token,
-            method: 'POST',
-            data: { body, published_at, title: slug },
+
+            data: draft ? { title, body }
+                        : { title, body, published_at: now() }
+            ,
 
         }).then(v.parser(v.object({
 
             ok: v.literal(true),
-            slug: v.literal(slug),
+            slug: v.literal(title),
 
         })));
 
-        const { url } = await send(`${ posts }/${ slug }/`, {
+        const { url } = await send('PATCH', `${ posts }/${ title }/`, {
 
             token,
-            method: 'PATCH',
+
             data: { title: full },
 
         }).then(v.parser(v.object({
@@ -156,13 +165,16 @@ function post ({ posts, token, draft }: {
 
 
 
-async function send (url: string, { method, token, data }: {
+async function send (
 
         method: 'POST' | 'PATCH',
-        token: string,
-        data: object,
 
-}) {
+        url: string,
+
+        { token,         data,        }:
+        { token: string, data: object },
+
+) {
 
     const res = await fetch(url, {
         method,
