@@ -132,8 +132,7 @@ function post ({ posts, token, draft }: {
             token,
 
             data: draft ? { title, body }
-                        : { title, body, published_at: now() }
-            ,
+                        : { title, body, published_at: now() },
 
         }).then(v.parser(v.object({
 
