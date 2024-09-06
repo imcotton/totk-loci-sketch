@@ -26,6 +26,7 @@
   "lock": false,
   "publish": {
     "include": [
+      "./common.ts",
       "./mod.ts",
       "./main.ts",
       "./make.ts",

@@ -3,6 +3,7 @@ import * as v from 'valibot';
 import { encodeHex } from '@std/encoding/hex';
 
 import { make, type Outputs } from './make.ts';
+import { inputs } from './common.ts';
 
 const { crypto: webcrypto } = globalThis;
 
@@ -74,22 +75,6 @@ export async function main (raw: Inputs, {
     print(url);
 
 }
-
-
-
-
-
-const digits = v.pipe(v.string(), v.regex(/^-?\d{4}$/));
-
-const inputs = v.object({
-
-    issue: v.pipe(v.number(), v.safeInteger()),
-    title: v.string(),
-    intro: v.string(),
-    image: v.string(),
-    coordinates: v.pipe(v.tuple([ digits, digits, digits ]), v.readonly()),
-
-});
 
 
 
