@@ -51,11 +51,13 @@ export async function main (raw: Inputs, {
 
         inputs,
 
-        v.transformAsync(async function (rest) {
+        v.transformAsync(async function ({ image, ...rest }) {
 
-            const checksum = await fetch_checksum(prefix, rest.image);
+            const refined = refine_image(image);
 
-            return { ...rest, checksum };
+            const checksum = await fetch_checksum(prefix, refined);
+
+            return { ...rest, checksum, image: refined };
 
         }),
 
@@ -84,7 +86,7 @@ const inputs = v.object({
     issue: v.pipe(v.number(), v.safeInteger()),
     title: v.string(),
     intro: v.string(),
-    image: v.pipe(v.string(), v.transform(refine_image)),
+    image: v.string(),
     coordinates: v.pipe(v.tuple([ digits, digits, digits ]), v.readonly()),
 
 });
