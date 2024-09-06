@@ -77,7 +77,7 @@ export async function main (raw: Inputs, {
 
 
 
-const digits = v.pipe(v.string(), v.regex(/^-?\d{4}/));
+const digits = v.pipe(v.string(), v.regex(/^-?\d{4}$/));
 
 const inputs = v.object({
 
