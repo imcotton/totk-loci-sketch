@@ -3,9 +3,9 @@
 import { Hono }          from 'hono';
 import { jsx }           from 'hono/jsx';
 import { html }          from 'hono/html';
-import { vValidator }    from 'hono/valibot-validator';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { secureHeaders } from 'hono/secure-headers';
+import { vValidator }    from 'hono/valibot-validator';
 
 import { totpValidate } from '@maks11060/otp';
 
