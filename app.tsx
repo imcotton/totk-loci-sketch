@@ -7,7 +7,7 @@ import { jsxRenderer }   from 'hono/jsx-renderer';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
-import { totpValidate } from '@maks11060/otp';
+import { totpValidate, type TotpOptions } from '@maks11060/otp';
 
 import * as v from 'valibot';
 
@@ -164,7 +164,7 @@ export const app = ({ token, secret }: {
 
     .post('/new', // ----------------------------------------------------------
 
-        vValidator('form', local(secret, inputs), function (result, ctx) {
+        vValidator('form', local(inputs, otp_check(secret)), function (result, ctx) {
 
             if (result.success === false) {
 
@@ -263,42 +263,72 @@ export const app = ({ token, secret }: {
 
 
 
-function local (
+const pre_check = (digits: NonNullable<TotpOptions['digits']>) => ({
 
-        secret: string | undefined,
-        { entries: { issue, ...rest } }: typeof inputs,
+    otp_check (
 
-) {
+            secret?: string,
 
-    return v.objectAsync({
+    ) {
 
-        ...rest,
+        if (secret != null) {
 
-        issue: v.pipe(
-            v.string(),
-            v.transform(Number.parseInt),
-            issue,
-        ),
-
-        publish: v.optional(v.pipe(
-            v.literal('on'),
-            v.transform(check => check === 'on'),
-        )),
-
-        otp: v.optionalAsync(v.pipeAsync(
-            v.string(),
-            v.length(otp_digit),
-            v.decimal(),
-            v.checkAsync(code => secret != null && totpValidate({
+            return (code: string) => totpValidate({
                 code,
-                digits: otp_digit,
+                digits,
                 secret: text_encode(secret),
-            }), 'OTP verify failed'),
-        )),
+            });
 
-    });
+        }
 
-}
+    },
+
+    local (
+
+            { entries: { issue, ...rest } }: typeof inputs,
+            verify?: (_: string) => Promise<boolean>,
+
+    ) {
+
+        const base = {
+
+            ...rest,
+
+            issue: v.pipe(
+                v.string(),
+                v.transform(Number.parseInt),
+                issue,
+            ),
+
+            publish: v.optional(v.pipe(
+                v.literal('on'),
+                v.transform(check => check === 'on'),
+            )),
+
+        };
+
+        if (verify == null) {
+            return v.object(base);
+        }
+
+        return v.objectAsync({
+
+            ...base,
+
+            otp: v.pipeAsync(
+                v.string(),
+                v.length(digits),
+                v.decimal(),
+                v.checkAsync(verify, 'OTP verify failed'),
+            ),
+
+        });
+
+    },
+
+});
+
+const { otp_check, local } = pre_check(otp_digit);
 
 
 
