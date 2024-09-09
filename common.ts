@@ -20,3 +20,15 @@ export const inputs = v.object({
 
 });
 
+
+
+
+
+export function text_encode (str: string): Uint8Array {
+
+    return txt.encode(str);
+
+}
+
+const txt = new TextEncoder();
+

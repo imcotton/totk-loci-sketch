@@ -12,7 +12,7 @@ import { totpValidate } from '@maks11060/otp';
 import * as v from 'valibot';
 
 import { main } from './main.ts';
-import { inputs } from './common.ts';
+import { inputs, text_encode } from './common.ts';
 
 
 
@@ -314,16 +314,4 @@ const CSP = secureHeaders({
     },
 
 });
-
-
-
-
-
-function text_encode (str: string) {
-
-    return txt.encode(str);
-
-}
-
-const txt = new TextEncoder();
 
