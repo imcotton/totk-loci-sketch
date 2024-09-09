@@ -1,7 +1,7 @@
 /** @jsx jsx */ void jsx;
 
 import { Hono }          from 'hono';
-import { jsx }           from 'hono/jsx';
+import { jsx, memo }     from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
@@ -47,25 +47,25 @@ const new_hono = () => new Hono()
 
     .use(jsxRenderer(({ children }) => <html>
 
-            <head>
+        <head>
 
-                <meta charset="utf-8" />
+            <meta charset="utf-8" />
 
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-                <link   rel="stylesheet"
-                        crossorigin="anonymous"
+            <link   rel="stylesheet"
+                    crossorigin="anonymous"
                     href={ pico_css.href }
                     integrity={ pico_css.integrity }
             />
 
-            </head>
+        </head>
 
-            <body>
-                <main class="container">
+        <body>
+            <main class="container">
                 { children }
-                </main>
-            </body>
+            </main>
+        </body>
 
     </html>))
 
@@ -75,184 +75,200 @@ const new_hono = () => new Hono()
 
 
 
-export const app = ({ token, secret }: {
+const DraftForm = memo(({ digit, need_otp }: {
+
+        digit: number,
+        need_otp: boolean,
+
+}) => <div style="max-width: 30em; margin: auto">
+
+    <form action="/new" method="post">
+
+        <article>
+
+            <header>New</header>
+
+            <fieldset>
+
+                <div class="grid" style="align-items: center">
+
+                    <label>issue
+                        <input type="number" name="issue" required />
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="publish" />
+                        publish
+                    </label>
+
+                </div>
+
+                <label>title
+                    <input type="text" name="title" required />
+                </label>
+
+                <label>intro
+                    <input type="text" name="intro" required />
+                </label>
+
+                <label>image
+                    <input type="text" name="image" required />
+                </label>
+
+                <label>coordinates
+                    <div class="grid">
+                        <input type="text" name="coordinates" required />
+                        <input type="text" name="coordinates" required />
+                        <input type="text" name="coordinates" required />
+                    </div>
+                </label>
+
+            </fieldset>
+
+            <footer> { need_otp === false
+
+                ? <input type="submit" value="Create" />
+
+                : <fieldset role="group">
+
+                    <input  type="number"
+                            name="otp"
+                            minlength={ digit }
+                            maxlength={ digit }
+                            placeholder={ `${ digit }-digit Code` }
+                            required
+                    />
+
+                    <input type="submit" value="Create" />
+
+                </fieldset>
+
+            } </footer>
+
+        </article>
+
+    </form>
+
+</div>);
+
+
+
+
+
+export function app ({ token, secret }: {
 
         token?: string,
         secret?: string,
 
-}): { fetch (_: Request): Response | Promise<Response> } => new_hono()
+}): { fetch (_: Request): Response | Promise<Response> } {
 
-    .get('/', CSP, async function (ctx) { // ----------------------------------
+    return new_hono()
 
-        return ctx.render(<div style="max-width: 30em; margin: auto">
+        .get('/', CSP, ctx => ctx.render(<DraftForm
 
-            <form action="/new" method="post">
+            digit={ otp_digit }
+            need_otp={ secret != null }
 
-                <article>
+        />))
 
-                    <header>New</header>
+        .post('/new', // ------------------------------------------------------
 
-                    <fieldset>
+            vValidator('form', local(inputs, otp_check(secret)), function (result, ctx) {
 
-                        <div class="grid" style="align-items: center">
+                if (result.success === false) {
 
-                            <label>issue
-                                <input type="number" name="issue" required />
-                            </label>
+                    const { nested = {} } = v.flatten(result.issues);
 
-                            <label>
-                                <input type="checkbox" name="publish" />
-                                publish
-                            </label>
+                    return ctx.render(<ul> {
 
-                        </div>
+                        Object.entries(nested).map(([ key, err ]) => <li>
 
-                        <label>title
-                            <input type="text" name="title" required />
-                        </label>
+                            <strong>{ key }</strong>: { err?.at(0) ?? 'unknown' }
 
-                        <label>intro
-                            <input type="text" name="intro" required />
-                        </label>
+                        </li>)
 
-                        <label>image
-                            <input type="text" name="image" required />
-                        </label>
+                    } </ul>);
 
-                        <label>coordinates
-                            <div class="grid">
-                                <input type="text" name="coordinates" required />
-                                <input type="text" name="coordinates" required />
-                                <input type="text" name="coordinates" required />
-                            </div>
-                        </label>
+                }
 
-                    </fieldset>
+            }),
 
-                    <footer> { secret == null
+            async function (ctx) {
 
-                        ? <input type="submit" value="Create" />
+                const { publish, ...rest } = ctx.req.valid('form');
 
-                        : <fieldset role="group">
+                const { promise, resolve } = Promise.withResolvers<string>();
 
-                            <input  type="number"
-                                    name="otp"
-                                    minlength={ otp_digit }
-                                    maxlength={ otp_digit }
-                                    placeholder={ `${ otp_digit }-digit Code` }
-                                    required
-                            />
+                const [ url ] = await Promise.all([
 
-                            <input type="submit" value="Create" />
+                    promise,
 
-                        </fieldset>
+                    main(rest, {
+                        token,
+                        print: resolve,
+                        draft: publish !== true,
+                    }),
 
-                    } </footer>
+                ]);
 
-                </article>
+                return ctx.render(
+                    <p>
+                        go to
+                        <a href={ url }>{ url }</a>
+                    </p>
+                );
 
-            </form>
+            },
 
-        </div>);
+        )
 
-    })
+        .get(pico_css.href, async function (ctx) { // -------------------------
 
-    .post('/new', // ----------------------------------------------------------
+            try {
 
-        vValidator('form', local(inputs, otp_check(secret)), function (result, ctx) {
+                const store = await caches.open(`assets-v1`);
 
-            if (result.success === false) {
+                const key = ctx.req.raw;
 
-                const { nested = {} } = v.flatten(result.issues);
+                const value = await store.match(key, {
+                    ignoreSearch: true,
+                });
 
-                return ctx.render(<ul> {
+                if (value != null) {
+                    return value;
+                }
 
-                    Object.entries(nested).map(([ key, err ]) => <li>
+                const req = await fetch(pico_css.remote, {
+                    headers: {
+                        Accept: 'text/css,*/*',
+                    },
+                    integrity: pico_css.integrity,
+                    signal: AbortSignal.timeout(3000),
+                });
 
-                        <strong>{ key }</strong>: { err?.at(0) ?? 'unknown' }
+                if (req.ok !== true) {
+                    return req;
+                }
 
-                    </li>)
+                await store.put(key, req.clone());
 
-                } </ul>);
-
-            }
-
-        }),
-
-        async function (ctx) {
-
-            const { publish, ...rest } = ctx.req.valid('form');
-
-            const { promise, resolve } = Promise.withResolvers<string>();
-
-            const [ url ] = await Promise.all([
-
-                promise,
-
-                main(rest, {
-                    token,
-                    print: resolve,
-                    draft: publish !== true,
-                }),
-
-            ]);
-
-            return ctx.render(
-                <p>
-                    go to
-                    <a href={ url }>{ url }</a>
-                </p>
-            );
-
-        },
-
-    )
-
-    .get(pico_css.href, async function (ctx) { // -----------------------------
-
-        try {
-
-            const store = await caches.open(`assets-v1`);
-
-            const key = ctx.req.raw;
-
-            const value = await store.match(key, {
-                ignoreSearch: true,
-            });
-
-            if (value != null) {
-                return value;
-            }
-
-            const req = await fetch(pico_css.remote, {
-                headers: {
-                    Accept: 'text/css,*/*',
-                },
-                integrity: pico_css.integrity,
-                signal: AbortSignal.timeout(3000),
-            });
-
-            if (req.ok !== true) {
                 return req;
+
+            } catch (err) {
+
+                if (err instanceof Error) {
+                    return ctx.text(err.message, 500);
+                }
+
+                return ctx.text('unknown', 500);
+
             }
 
-            await store.put(key, req.clone());
+        })
 
-            return req;
+    ;
 
-        } catch (err) {
-
-            if (err instanceof Error) {
-                return ctx.text(err.message, 500);
-            }
-
-            return ctx.text('unknown', 500);
-
-        }
-
-    })
-
-;
+}
 
 
 
