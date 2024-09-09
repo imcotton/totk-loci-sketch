@@ -154,10 +154,11 @@ const DraftForm = memo(({ digit, need_otp }: {
 
 
 
-export function app ({ token, secret }: {
+export function app ({ token, secret, store }: {
 
         token?: string,
         secret?: string,
+        store: Cache,
 
 }): { fetch (_: Request): Response | Promise<Response> } {
 
@@ -224,8 +225,6 @@ export function app ({ token, secret }: {
         .get(pico_css.href, async function (ctx) { // -------------------------
 
             try {
-
-                const store = await caches.open(`assets-v1`);
 
                 const key = ctx.req.raw;
 
