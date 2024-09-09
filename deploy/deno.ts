@@ -17,5 +17,11 @@ const {
 
 
 
-export default app({ token, secret });
+const store = await caches.open('assets-v1');
+
+
+
+
+
+export default app({ token, secret, store });
 
