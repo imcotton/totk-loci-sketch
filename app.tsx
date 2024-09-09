@@ -54,7 +54,6 @@ const new_hono = () => new Hono()
             <meta name="viewport" content="width=device-width, initial-scale=1" />
 
             <link   rel="stylesheet"
-                    crossorigin="anonymous"
                     href={ pico_css.href }
                     integrity={ pico_css.integrity }
             />
