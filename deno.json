@@ -7,7 +7,6 @@
     "@std/encoding": "jsr:@std/encoding@^1.0.3",
 
     "hono":                 "npm:hono@^4.5.11",
-    "hono/csrf":            "npm:hono@^4.5.11/csrf",
     "hono/jsx":             "npm:hono@^4.5.11/jsx",
     "hono/jsx-renderer":    "npm:hono@^4.5.11/jsx-renderer",
     "hono/jsx/jsx-runtime": "npm:hono@^4.5.11/jsx/jsx-runtime",
