@@ -310,6 +310,7 @@ const CSP = secureHeaders({
 
         defaultSrc: [ `'self'` ],
         styleSrc: [   `'self'`, `'unsafe-inline'` ],
+        imgSrc: [     `'self'`, `data:` ],
 
     },
 
