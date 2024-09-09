@@ -5,10 +5,23 @@
   "license": "MIT",
   "imports": {
     "@std/encoding": "jsr:@std/encoding@^1.0.3",
+
+    "hono":                 "npm:hono@^4.5.11",
+    "hono/csrf":            "npm:hono@^4.5.11/csrf",
+    "hono/jsx":             "npm:hono@^4.5.11/jsx",
+    "hono/jsx-renderer":    "npm:hono@^4.5.11/jsx-renderer",
+    "hono/jsx/jsx-runtime": "npm:hono@^4.5.11/jsx/jsx-runtime",
+    "hono/html":            "npm:hono@^4.5.11/html",
+    "hono/secure-headers":  "npm:hono@^4.5.11/secure-headers",
+    "hono/validator":       "npm:hono@^4.5.11/validator",
+    "hono/valibot-validator": "npm:@hono/valibot-validator@~0.3.0",
+
+    "@maks11060/otp": "jsr:@maks11060/otp@~1.0.0",
     "strip-indent": "npm:strip-indent@^4.0.0",
     "valibot": "npm:valibot@~0.41.0"
   },
   "exports": {
+    "./app": "./app.tsx",
     "./main": "./main.ts",
     "./make": "./make.ts",
     ".": "./mod.ts"
@@ -18,6 +31,9 @@
     "post": "./draft.ts"
   },
   "compilerOptions": {
+    "jsx": "precompile",
+    "jsxImportSource": "hono/jsx",
+    "jsxImportSourceTypes": "hono/jsx",
     "strict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
@@ -28,6 +44,7 @@
   "publish": {
     "include": [
       "./common.ts",
+      "./app.tsx",
       "./mod.ts",
       "./main.ts",
       "./make.ts",
