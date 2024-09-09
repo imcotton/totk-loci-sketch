@@ -2,7 +2,7 @@
 
 import { Hono }          from 'hono';
 import { jsx }           from 'hono/jsx';
-import { csrf }          from 'hono/csrf';
+// import { csrf }          from 'hono/csrf';
 import { html }          from 'hono/html';
 import { vValidator }    from 'hono/valibot-validator';
 import { jsxRenderer }   from 'hono/jsx-renderer';
@@ -47,7 +47,7 @@ const pico_css = {
 
 const new_hono = () => new Hono()
 
-    .use(csrf())
+    // .use(csrf())
 
     .use(jsxRenderer(({ children }) => html`
 
