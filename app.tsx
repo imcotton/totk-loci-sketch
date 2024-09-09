@@ -2,7 +2,6 @@
 
 import { Hono }          from 'hono';
 import { jsx }           from 'hono/jsx';
-import { html }          from 'hono/html';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
@@ -46,9 +45,7 @@ const pico_css = {
 
 const new_hono = () => new Hono()
 
-    .use(jsxRenderer(({ children }) => html`
-
-        <html>
+    .use(jsxRenderer(({ children }) => <html>
 
             <head>
 
@@ -58,21 +55,19 @@ const new_hono = () => new Hono()
 
                 <link   rel="stylesheet"
                         crossorigin="anonymous"
-                        href="${ pico_css.href }"
-                        integrity="${ pico_css.integrity }"
-                >
+                    href={ pico_css.href }
+                    integrity={ pico_css.integrity }
+            />
 
             </head>
 
             <body>
                 <main class="container">
-                    ${ children }
+                { children }
                 </main>
             </body>
 
-        </html>
-
-    `))
+    </html>))
 
 ;
 
