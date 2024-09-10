@@ -45,7 +45,7 @@ const pico_css = {
 
 
 
-const new_hono = () => new Hono()
+const new_hono = () => (new Hono()
 
     .use(jsxRenderer(({ children }) => <html>
 
@@ -70,7 +70,7 @@ const new_hono = () => new Hono()
 
     </html>))
 
-;
+);
 
 
 
