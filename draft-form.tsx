@@ -13,13 +13,17 @@ const Coord = ({ name, min, max, pattern = '-?\d{4}' }: {
         max: number,
         pattern?: string,
 
-}) => <input    type="number"
-                name={ name }
-                minlength={ min }
-                maxlength={ max }
-                pattern={ pattern }
-                required
-/>;
+}) => (
+
+    <input  type="number"
+            name={ name }
+            minlength={ min }
+            maxlength={ max }
+            pattern={ pattern }
+            required
+    />
+
+);
 
 
 
@@ -30,86 +34,94 @@ export const DraftForm = memo(({ digit, need_otp }: {
         digit: number,
         need_otp: boolean,
 
-}) => <div style="max-width: 30em; margin: auto">
+}) => (
 
-    <form action="/new" method="post">
+    <div style="max-width: 30em; margin: auto">
 
-        <article>
+        <form action="/new" method="post">
 
-            <header>New</header>
+            <article>
 
-            <fieldset>
+                <header>New</header>
 
-                <div class="grid" style="align-items: center">
+                <fieldset>
 
-                    <label>issue
-                        <input type="number" inputmode="numeric" name="issue" required />
-                    </label>
+                    <div class="grid" style="align-items: center">
 
-                    <label>
-                        <input type="checkbox" name="publish" />
-                        publish
-                    </label>
+                        <label>issue
+                            <input  name="issue"
+                                    type="number"
+                                    inputmode="numeric"
+                                    required
+                            />
+                        </label>
 
-                </div>
+                        <label>
+                            <input type="checkbox" name="publish" />
+                            publish
+                        </label>
 
-                <label>title
-                    <input  name="title"
-                            type="text"
-                            autocapitalize="off"
-                            required
-                    />
-                </label>
-
-                <label>intro
-                    <input type="text" name="intro" required />
-                </label>
-
-                <label>image
-                    <input  name="image"
-                            type="text"
-                            autocorrect="off"
-                            autocomplete="off"
-                            autocapitalize="off"
-                            required
-                    />
-                </label>
-
-                <label>coordinates
-                    <div class="grid">
-                        <Coord name="coordinates" min={ 4 } max={ 5 } />
-                        <Coord name="coordinates" min={ 4 } max={ 5 } />
-                        <Coord name="coordinates" min={ 4 } max={ 5 } />
                     </div>
-                </label>
 
-            </fieldset>
+                    <label>title
+                        <input  name="title"
+                                type="text"
+                                autocapitalize="off"
+                                required
+                        />
+                    </label>
 
-            <footer> { need_otp === false
+                    <label>intro
+                        <input type="text" name="intro" required />
+                    </label>
 
-                ? <input type="submit" value="Create" />
+                    <label>image
+                        <input  name="image"
+                                type="text"
+                                autocorrect="off"
+                                autocomplete="off"
+                                autocapitalize="off"
+                                required
+                        />
+                    </label>
 
-                : <fieldset role="group">
-
-                    <input  name="otp"
-                            type="text"
-                            inputmode="numeric"
-                            autocomplete="one-time-code"
-                            minlength={ digit }
-                            maxlength={ digit }
-                            placeholder={ `${ digit }-digit Code` }
-                            required
-                    />
-
-                    <input type="submit" value="Create" />
+                    <label>coordinates
+                        <div class="grid">
+                            <Coord name="coordinates" min={ 4 } max={ 5 } />
+                            <Coord name="coordinates" min={ 4 } max={ 5 } />
+                            <Coord name="coordinates" min={ 4 } max={ 5 } />
+                        </div>
+                    </label>
 
                 </fieldset>
 
-            } </footer>
+                <footer> { need_otp === false
 
-        </article>
+                    ? <input type="submit" value="Create" />
 
-    </form>
+                    : <fieldset role="group">
 
-</div>);
+                        <input  name="otp"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="one-time-code"
+                                minlength={ digit }
+                                maxlength={ digit }
+                                placeholder={ `${ digit }-digit Code` }
+                                required
+                        />
+
+                        <input type="submit" value="Create" />
+
+                    </fieldset>
+
+                } </footer>
+
+            </article>
+
+        </form>
+
+    </div>
+
+));
 
