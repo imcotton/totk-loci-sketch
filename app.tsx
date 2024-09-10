@@ -44,7 +44,7 @@ export function app ({ token, secret, store }: {
 
         />))
 
-        .post('/new', // ------------------------------------------------------
+        .post('/new',
 
             vValidator('form', local(inputs, guard), function (result, ctx) {
 
