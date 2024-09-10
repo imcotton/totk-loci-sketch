@@ -158,7 +158,7 @@ export function app ({ token, secret, store }: {
                     return value;
                 }
 
-                const req = await fetch(pico_css.remote, {
+                const res = await fetch(pico_css.remote, {
                     headers: {
                         Accept: 'text/css,*/*',
                     },
@@ -166,11 +166,11 @@ export function app ({ token, secret, store }: {
                     signal: AbortSignal.timeout(3000),
                 });
 
-                if (req.ok === true) {
-                    await store.put(key, req.clone());
+                if (res.ok === true) {
+                    await store.put(key, res.clone());
                 }
 
-                return req;
+                return res;
 
             } catch (err) {
 
