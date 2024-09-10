@@ -36,6 +36,7 @@
   "publish": {
     "include": [
       "./common.ts",
+      "./draft-form.tsx",
       "./app.tsx",
       "./mod.ts",
       "./main.ts",
