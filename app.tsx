@@ -74,7 +74,7 @@ export function app ({ token, secret, store }: {
 
             }),
 
-            async function (ctx) {
+            ctx => try_catch(async function () {
 
                 const { publish, ...rest } = ctx.req.valid('form');
 
@@ -99,7 +99,7 @@ export function app ({ token, secret, store }: {
                     </p>
                 );
 
-            },
+            }),
 
         )
 
