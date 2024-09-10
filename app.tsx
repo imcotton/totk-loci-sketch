@@ -13,7 +13,7 @@ import * as v from 'valibot';
 
 import { main } from './main.ts';
 import { DraftForm } from './draft-form.tsx';
-import { inputs, text_encode } from './common.ts';
+import { catch_refine, inputs, text_encode } from './common.ts';
 
 
 
@@ -103,53 +103,55 @@ export function app ({ token, secret, store }: {
 
         )
 
-        .get(pico_css.href, async function (ctx) { // -------------------------
+        .get(pico_css.href, ctx => try_catch(async function () { // -----------
 
-            try {
+            const key = ctx.req.raw;
 
-                const key = ctx.req.raw;
+            const value = await store.match(key, {
+                ignoreSearch: true,
+            });
 
-                const value = await store.match(key, {
-                    ignoreSearch: true,
-                });
-
-                if (value) {
-                    return value;
-                }
-
-                const res = await fetch(pico_css.remote, {
-                    headers: {
-                        Accept: 'text/css,*/*',
-                    },
-                    integrity: pico_css.integrity,
-                    signal: AbortSignal.timeout(3000),
-                });
-
-                if (res.ok === true) {
-                    await store.put(key, res.clone());
-                }
-
-                return res;
-
-            } catch (err) {
-
-                if (err instanceof HTTPException) {
-                    throw err;
-                }
-
-                if (err instanceof Error) {
-                    throw new HTTPException(500, { message: err.message });
-                }
-
-                throw new HTTPException(500, { message: 'unknown' });
-
+            if (value) {
+                return value;
             }
 
-        })
+            const res = await fetch(pico_css.remote, {
+                headers: {
+                    Accept: 'text/css,*/*',
+                },
+                integrity: pico_css.integrity,
+                signal: AbortSignal.timeout(3000),
+            });
+
+            if (res.ok === true) {
+                await store.put(key, res.clone());
+            }
+
+            return res;
+
+        }))
 
     ;
 
 }
+
+
+
+
+
+const try_catch = catch_refine(function (err: unknown) {
+
+    if (err instanceof HTTPException) {
+        throw err;
+    }
+
+    if (err instanceof Error) {
+        throw new HTTPException(500, { message: err.message });
+    }
+
+    throw new HTTPException(500, { message: 'unknown' });
+
+});
 
 
 
