@@ -3,6 +3,7 @@
 import { Hono }          from 'hono';
 import { jsx, memo }     from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
+import { HTTPException } from 'hono/http-exception';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
@@ -37,7 +38,7 @@ const pico_css = {
         return `https://esm.sh/@picocss/pico@${ this.version }/css/pico.min.css`;
     },
 
-};
+} as const;
 
 
 
@@ -232,7 +233,7 @@ export function app ({ token, secret, store }: {
                     ignoreSearch: true,
                 });
 
-                if (value != null) {
+                if (value) {
                     return value;
                 }
 
@@ -244,21 +245,23 @@ export function app ({ token, secret, store }: {
                     signal: AbortSignal.timeout(3000),
                 });
 
-                if (req.ok !== true) {
-                    return req;
+                if (req.ok === true) {
+                    await store.put(key, req.clone());
                 }
-
-                await store.put(key, req.clone());
 
                 return req;
 
             } catch (err) {
 
-                if (err instanceof Error) {
-                    return ctx.text(err.message, 500);
+                if (err instanceof HTTPException) {
+                    throw err;
                 }
 
-                return ctx.text('unknown', 500);
+                if (err instanceof Error) {
+                    throw new HTTPException(500, { message: err.message });
+                }
+
+                throw new HTTPException(500, { message: 'unknown' });
 
             }
 
