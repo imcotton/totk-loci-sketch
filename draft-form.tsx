@@ -85,7 +85,7 @@ export const DraftForm = memo(({ digit, need_otp }: {
 
             </fieldset>
 
-            <footer> { need_otp === !false
+            <footer> { need_otp === false
 
                 ? <input type="submit" value="Create" />
 
