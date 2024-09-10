@@ -35,7 +35,7 @@ export function app ({ token, secret, store }: {
 
     const guard = otp_check(secret);
 
-    return (new_hono()
+    return (new_hono(store)
 
         .get('/', CSP, ctx => ctx.render(<DraftForm
 
@@ -103,35 +103,58 @@ export function app ({ token, secret, store }: {
 
         )
 
-        .get(pico_css.href, ctx => try_catch(async function () { // -----------
-
-            const key = ctx.req.raw;
-
-            const value = await store.match(key, {
-                ignoreSearch: true,
-            });
-
-            if (value) {
-                return value;
-            }
-
-            const res = await fetch(pico_css.remote, {
-                headers: {
-                    Accept: 'text/css,*/*',
-                },
-                integrity: pico_css.integrity,
-                signal: AbortSignal.timeout(3000),
-            });
-
-            if (res.ok === true) {
-                await store.put(key, res.clone());
-            }
-
-            return res;
-
-        }))
-
     );
+
+}
+
+
+
+
+
+function make_cache (it: Iterable<{
+
+        href: string,
+        remote: string,
+        integrity?: string,
+        Accept?: string,
+
+}>) {
+
+    return function (store: Cache, hono: Hono, timeout = 5_000) {
+
+        return Array.from(it).reduce(function (router, info) {
+
+            const { href, remote, integrity, Accept = '*/*' } = info;
+
+            return router.get(href, ctx => try_catch(async function () {
+
+                const key = ctx.req.raw;
+
+                const value = await store.match(key, {
+                    ignoreSearch: true,
+                });
+
+                if (value) {
+                    return value;
+                }
+
+                const res = await fetch(remote, {
+                    integrity,
+                    headers: { Accept },
+                    signal: AbortSignal.timeout(timeout),
+                });
+
+                if (res.ok === true) {
+                    await store.put(key, res.clone());
+                }
+
+                return res;
+
+            }));
+
+        }, hono);
+
+    };
 
 }
 
@@ -157,52 +180,56 @@ const try_catch = catch_refine(function (err: unknown) {
 
 
 
-const pico_css = {
+function new_hono (store: Cache) {
 
-    version: '2.0.6',
+    const pico_css = {
 
-    integrity: 'sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=',
+        version: '2.0.6',
 
-    get href () {
-        return `/static/css/pico/${ this.version }/pico.min.css`;
-    },
+        integrity: 'sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=',
 
-    get remote () {
-        return `https://esm.sh/@picocss/pico@${ this.version }/css/pico.min.css`;
-    },
+        Accept: 'text/css',
 
-} as const;
+        get href () {
+            return `/static/css/pico/${ this.version }/pico.min.css`;
+        },
 
+        get remote () {
+            return `https://esm.sh/@picocss/pico@${ this.version }/css/pico.min.css`;
+        },
 
+    } as const;
 
+    const mount = make_cache([ pico_css ]);
 
+    return mount(store, new Hono())
 
-const new_hono = () => (new Hono()
+        .use(jsxRenderer(({ children }) => <html>
 
-    .use(jsxRenderer(({ children }) => <html>
+            <head>
 
-        <head>
+                <meta charset="utf-8" />
 
-            <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link   rel="stylesheet"
+                        href={ pico_css.href }
+                        integrity={ pico_css.integrity }
+                />
 
-            <link   rel="stylesheet"
-                    href={ pico_css.href }
-                    integrity={ pico_css.integrity }
-            />
+            </head>
 
-        </head>
+            <body>
+                <main class="container">
+                    { children }
+                </main>
+            </body>
 
-        <body>
-            <main class="container">
-                { children }
-            </main>
-        </body>
+        </html>))
 
-    </html>))
+    ;
 
-);
+}
 
 
 
