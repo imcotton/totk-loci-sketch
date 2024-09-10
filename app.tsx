@@ -33,6 +33,8 @@ export function app ({ token, secret, store }: {
 
 }): { fetch (_: Request): Response | Promise<Response> } {
 
+    const guard = otp_check(secret);
+
     return new_hono()
 
         .get('/', CSP, ctx => ctx.render(<DraftForm
@@ -44,7 +46,7 @@ export function app ({ token, secret, store }: {
 
         .post('/new', // ------------------------------------------------------
 
-            vValidator('form', local(inputs, otp_check(secret)), function (result, ctx) {
+            vValidator('form', local(inputs, guard), function (result, ctx) {
 
                 if (result.success === false) {
 
