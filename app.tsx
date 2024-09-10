@@ -12,7 +12,7 @@ import { totpValidate, type TotpOptions } from '@maks11060/otp';
 import * as v from 'valibot';
 
 import { main } from './main.ts';
-import { DraftForm } from "./draft-form.tsx";
+import { DraftForm } from './draft-form.tsx';
 import { inputs, text_encode } from './common.ts';
 
 
