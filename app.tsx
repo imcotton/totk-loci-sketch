@@ -25,57 +25,6 @@ const otp_digit = 6;
 
 
 
-const pico_css = {
-
-    version: '2.0.6',
-
-    integrity: 'sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=',
-
-    get href () {
-        return `/static/css/pico/${ this.version }/pico.min.css`;
-    },
-
-    get remote () {
-        return `https://esm.sh/@picocss/pico@${ this.version }/css/pico.min.css`;
-    },
-
-} as const;
-
-
-
-
-
-const new_hono = () => (new Hono()
-
-    .use(jsxRenderer(({ children }) => <html>
-
-        <head>
-
-            <meta charset="utf-8" />
-
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-            <link   rel="stylesheet"
-                    href={ pico_css.href }
-                    integrity={ pico_css.integrity }
-            />
-
-        </head>
-
-        <body>
-            <main class="container">
-                { children }
-            </main>
-        </body>
-
-    </html>))
-
-);
-
-
-
-
-
 export function app ({ token, secret, store }: {
 
         token?: string,
@@ -191,6 +140,57 @@ export function app ({ token, secret, store }: {
     ;
 
 }
+
+
+
+
+
+const pico_css = {
+
+    version: '2.0.6',
+
+    integrity: 'sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=',
+
+    get href () {
+        return `/static/css/pico/${ this.version }/pico.min.css`;
+    },
+
+    get remote () {
+        return `https://esm.sh/@picocss/pico@${ this.version }/css/pico.min.css`;
+    },
+
+} as const;
+
+
+
+
+
+const new_hono = () => (new Hono()
+
+    .use(jsxRenderer(({ children }) => <html>
+
+        <head>
+
+            <meta charset="utf-8" />
+
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+            <link   rel="stylesheet"
+                    href={ pico_css.href }
+                    integrity={ pico_css.integrity }
+            />
+
+        </head>
+
+        <body>
+            <main class="container">
+                { children }
+            </main>
+        </body>
+
+    </html>))
+
+);
 
 
 
