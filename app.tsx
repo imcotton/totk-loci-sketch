@@ -75,6 +75,25 @@ const new_hono = () => new Hono()
 
 
 
+const Coord = ({ name, min, max, pattern = '-?\d{4}' }: {
+
+        name: string,
+        min: number,
+        max: number,
+        pattern?: string,
+
+}) => <input    type="number"
+                name={ name }
+                minlength={ min }
+                maxlength={ max }
+                pattern={ pattern }
+                required
+/>;
+
+
+
+
+
 const DraftForm = memo(({ digit, need_otp }: {
 
         digit: number,
@@ -93,7 +112,7 @@ const DraftForm = memo(({ digit, need_otp }: {
                 <div class="grid" style="align-items: center">
 
                     <label>issue
-                        <input type="number" name="issue" required />
+                        <input type="number" inputmode="numeric" name="issue" required />
                     </label>
 
                     <label>
@@ -104,7 +123,11 @@ const DraftForm = memo(({ digit, need_otp }: {
                 </div>
 
                 <label>title
-                    <input type="text" name="title" required />
+                    <input  name="title"
+                            type="text"
+                            autocapitalize="off"
+                            required
+                    />
                 </label>
 
                 <label>intro
@@ -112,27 +135,35 @@ const DraftForm = memo(({ digit, need_otp }: {
                 </label>
 
                 <label>image
-                    <input type="text" name="image" required />
+                    <input  name="image"
+                            type="text"
+                            autocorrect="off"
+                            autocomplete="off"
+                            autocapitalize="off"
+                            required
+                    />
                 </label>
 
                 <label>coordinates
                     <div class="grid">
-                        <input type="text" name="coordinates" required />
-                        <input type="text" name="coordinates" required />
-                        <input type="text" name="coordinates" required />
+                        <Coord name="coordinates" min={ 4 } max={ 5 } />
+                        <Coord name="coordinates" min={ 4 } max={ 5 } />
+                        <Coord name="coordinates" min={ 4 } max={ 5 } />
                     </div>
                 </label>
 
             </fieldset>
 
-            <footer> { need_otp === false
+            <footer> { need_otp === !false
 
                 ? <input type="submit" value="Create" />
 
                 : <fieldset role="group">
 
-                    <input  type="number"
-                            name="otp"
+                    <input  name="otp"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
                             minlength={ digit }
                             maxlength={ digit }
                             placeholder={ `${ digit }-digit Code` }
