@@ -35,7 +35,7 @@ export function app ({ token, secret, store }: {
 
     const guard = otp_check(secret);
 
-    return new_hono()
+    return (new_hono()
 
         .get('/', CSP, ctx => ctx.render(<DraftForm
 
@@ -131,7 +131,7 @@ export function app ({ token, secret, store }: {
 
         }))
 
-    ;
+    );
 
 }
 
