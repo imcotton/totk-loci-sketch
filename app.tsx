@@ -56,7 +56,15 @@ export function app ({ token, secret, store }: {
 
                         Object.entries(nested).map(([ key, err ]) => <li>
 
-                            <strong>{ key }</strong>: { err?.at(0) ?? 'unknown' }
+                            <strong>{ key }</strong>: {
+
+                                err == null ? 'unknown' : <ol>
+
+                                    { err.map(msg => <li>{ msg }</li>) }
+
+                                </ol>
+
+                            }
 
                         </li>)
 
