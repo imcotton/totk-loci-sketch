@@ -1,6 +1,7 @@
 /** @jsx jsx */ void jsx;
 
 import { Hono }          from 'hono';
+import type { Context }  from 'hono';
 import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
@@ -46,33 +47,7 @@ export function app ({ token, secret, store }: {
 
         .post('/new',
 
-            vValidator('form', local(inputs, guard), function (result, ctx) {
-
-                if (result.success === false) {
-
-                    const { nested = {} } = v.flatten(result.issues);
-
-                    return ctx.render(<ul> {
-
-                        Object.entries(nested).map(([ key, err ]) => <li>
-
-                            <strong>{ key }</strong>: {
-
-                                err == null ? 'unknown' : <ol>
-
-                                    { err.map(msg => <li>{ msg }</li>) }
-
-                                </ol>
-
-                            }
-
-                        </li>)
-
-                    } </ul>);
-
-                }
-
-            }),
+            vValidator('form', local(inputs, guard), new_validator_hook),
 
             ctx => try_catch(async function () {
 
@@ -104,6 +79,43 @@ export function app ({ token, secret, store }: {
         )
 
     );
+
+}
+
+
+
+
+
+function new_validator_hook (
+
+        { success, issues }: v.SafeParseResult<ReturnType<typeof local>>,
+        ctx: Context,
+
+) {
+
+    if (success === false) {
+
+        const { nested = {} } = v.flatten(issues);
+
+        return ctx.render(<ul> {
+
+            Object.entries(nested).map(([ key, err ]) => <li>
+
+                <strong>{ key }</strong>: {
+
+                    err == null ? 'unknown' : <ol>
+
+                        { err.map(msg => <li>{ msg }</li>) }
+
+                    </ol>
+
+                }
+
+            </li>)
+
+        } </ul>);
+
+    }
 
 }
 
