@@ -224,7 +224,9 @@ function new_hono (store: Cache) {
 
                 <meta charset="utf-8" />
 
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta   name="viewport"
+                        content="width=device-width, initial-scale=1"
+                />
 
                 <link   rel="stylesheet"
                         href={ pico_css.href }
