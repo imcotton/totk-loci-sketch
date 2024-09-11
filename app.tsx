@@ -206,8 +206,10 @@ function new_hono (store: Cache) {
             return `/static/css/pico/${ this.version }/pico.min.css`;
         },
 
+        base: 'https://esm.sh/@picocss/pico',
+
         get remote () {
-            return `https://esm.sh/@picocss/pico@${ this.version }/css/pico.min.css`;
+            return `${ this.base }@${ this.version }/css/pico.min.css`;
         },
 
     } as const;
