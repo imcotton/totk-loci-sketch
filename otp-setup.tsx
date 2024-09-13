@@ -55,9 +55,9 @@ export function OtpSetup ({ action, secret, issuer, account, correct }: {
 
 }) {
 
-    const url = otpauth({ secret, issuer, account }).toString();
+    const { href } = otpauth({ secret, issuer, account });
 
-    const svg = qrcode(url, { output: 'svg', border: 2 });
+    const svg = qrcode(href, { output: 'svg', border: 2 });
 
     return (<form action={ action } method="post">
 
@@ -98,7 +98,7 @@ export function OtpSetup ({ action, secret, issuer, account, correct }: {
             </div>
 
             <p x-import-url>
-                <a href={ url } target="_blank">setup key</a>
+                <a href={ href } target="_blank">setup key</a>
             </p>
 
             <footer class="grid" x-check>
