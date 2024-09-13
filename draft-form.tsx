@@ -95,27 +95,35 @@ export const DraftForm = memo(({ digit, need_otp }: {
 
                 </fieldset>
 
-                <footer> { need_otp === false
+                <footer>
 
-                    ? <input type="submit" value="Create" />
+                    { need_otp === false
 
-                    : <fieldset role="group">
+                        ? <input type="submit" value="Create" />
 
-                        <input  name="otp"
-                                type="text"
-                                inputmode="numeric"
-                                autocomplete="one-time-code"
-                                minlength={ digit }
-                                maxlength={ digit }
-                                placeholder={ `${ digit }-digit Code` }
-                                required
-                        />
+                        : <fieldset role="group">
 
-                        <input type="submit" value="Create" />
+                            <input  name="otp"
+                                    type="text"
+                                    inputmode="numeric"
+                                    autocomplete="one-time-code"
+                                    minlength={ digit }
+                                    maxlength={ digit }
+                                    placeholder={ `${ digit }-digit Code` }
+                                    required
+                            />
 
-                    </fieldset>
+                            <input type="submit" value="Create" />
 
-                } </footer>
+                        </fieldset>
+
+                    }
+
+                    <small>
+                        <a href="/setup">setup OTP</a>
+                    </small>
+
+                </footer>
 
             </article>
 
