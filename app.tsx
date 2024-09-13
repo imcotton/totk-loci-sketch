@@ -8,13 +8,13 @@ import { HTTPException } from 'hono/http-exception';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
-import { totpValidate, type TotpOptions } from '@maks11060/otp';
+import { verify } from '@libs/crypto/totp';
 
 import * as v from 'valibot';
 
 import { main } from './main.ts';
 import { DraftForm } from './draft-form.tsx';
-import { catch_refine, inputs, text_encode } from './common.ts';
+import { catch_refine, inputs } from './common.ts';
 
 
 
@@ -251,7 +251,7 @@ function new_hono (store: Cache) {
 
 
 
-const pre_check = (digits: NonNullable<TotpOptions['digits']>) => ({
+const pre_check = (digits: number) => ({
 
     otp_check (
 
@@ -261,11 +261,21 @@ const pre_check = (digits: NonNullable<TotpOptions['digits']>) => ({
 
         if (secret != null) {
 
-            return (code: string) => totpValidate({
-                code,
-                digits,
-                secret: text_encode(secret),
-            });
+            return async function (token: string) {
+
+                try {
+
+                    return true === await verify({ token, secret });
+
+                } catch (err) {
+
+                    console.error(err);
+
+                    return false;
+
+                }
+
+            };
 
         }
 
