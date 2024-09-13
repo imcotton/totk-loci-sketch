@@ -65,6 +65,10 @@ export function OtpSetup ({ action, secret, issuer, account, correct }: {
 
         <article>
 
+            <header>
+                <a href="/">{ '<' } back</a>
+            </header>
+
             <details>
                 <summary role="button" class="secondary">secret</summary>
                 <input type="text" name="secret" value={ secret } />
