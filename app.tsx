@@ -269,7 +269,7 @@ function new_hono (store: Cache) {
 
     const mount = make_cache([ pico_css ]);
 
-    return mount(store, new Hono())
+    const hono = new Hono()
 
         .use(jsxRenderer(({ children }) => <html>
 
@@ -297,6 +297,8 @@ function new_hono (store: Cache) {
         </html>))
 
     ;
+
+    return mount(store, hono);
 
 }
 
