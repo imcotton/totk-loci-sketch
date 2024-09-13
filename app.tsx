@@ -8,8 +8,7 @@ import { HTTPException } from 'hono/http-exception';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
-import { qrcode } from '@libs/qrcode';
-import { verify, otpauth, otpsecret } from '@libs/crypto/totp';
+import { verify, otpsecret } from '@libs/crypto/totp';
 
 import * as v from 'valibot';
 
@@ -98,11 +97,9 @@ export function app ({ token, secret, store }: {
                     otp: token,
                 } = ctx.req.valid('form');
 
-                const url = otpauth({ secret, issuer, account }).toString();
-                const svg = qrcode(url, { output: 'svg', border: 2 });
                 const correct = await optional_verify(secret, token);
 
-                const opts = { secret, issuer, account, url, svg, correct };
+                const opts = { secret, issuer, account, correct };
 
                 return ctx.render(<OtpSetup action="/setup" { ...opts } />);
 

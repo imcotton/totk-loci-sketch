@@ -4,6 +4,9 @@ import { jsx }        from 'hono/jsx';
 import { raw }        from 'hono/html';
 import { css, Style } from 'hono/css';
 
+import { qrcode } from '@libs/qrcode';
+import { otpauth } from '@libs/crypto/totp';
+
 
 
 
@@ -42,26 +45,21 @@ const style = css`
 
 
 
-export const OtpSetup = ({
-
-        action,
-        secret, issuer, account,
-        url, svg,
-        correct,
-
-}: {
+export function OtpSetup ({ action, secret, issuer, account, correct }: {
 
         action: string,
         secret: string,
         issuer: string,
         account: string,
-        url: string,
-        svg: string,
         correct?: boolean,
 
-}) => (
+}) {
 
-    <form action={ action } method="post">
+    const url = otpauth({ secret, issuer, account }).toString();
+
+    const svg = qrcode(url, { output: 'svg', border: 2 });
+
+    return (<form action={ action } method="post">
 
         <Style>{ style }</Style>
 
@@ -127,7 +125,7 @@ export const OtpSetup = ({
 
         </article>
 
-    </form>
+    </form>);
 
-);
+}
 
