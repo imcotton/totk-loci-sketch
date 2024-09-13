@@ -8,12 +8,14 @@ import { HTTPException } from 'hono/http-exception';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
-import { verify } from '@libs/crypto/totp';
+import { qrcode } from '@libs/qrcode';
+import { verify, otpauth, otpsecret } from '@libs/crypto/totp';
 
 import * as v from 'valibot';
 
 import { main } from './main.ts';
 import { DraftForm } from './draft-form.tsx';
+import { OtpSetup } from './otp-setup.tsx';
 import { catch_refine, inputs } from './common.ts';
 
 
@@ -73,6 +75,47 @@ export function app ({ token, secret, store }: {
                         <a href={ url }>{ url }</a>
                     </p>
                 );
+
+            }),
+
+        )
+
+        .on([ 'GET', 'POST' ], '/setup', CSP,
+
+            vValidator('form', v.object({
+                secret: v.optional(v_base32),
+                issuer: v.optional(v.string()),
+                account: v.optional(v.string()),
+                otp: v.optional(v.string()),
+            })),
+
+            ctx => try_catch(async function () {
+
+                const {
+                    secret = otpsecret(),
+                    issuer = new URL(ctx.req.url).hostname,
+                    account = 'admin',
+                    otp: token,
+                } = ctx.req.valid('form');
+
+                const correct = token == null
+                              ? void 0
+                              : await verify({ secret, token })
+                ;
+
+                const url = otpauth({ secret, issuer, account }).toString();
+
+                const svg = qrcode(url, { output: 'svg', border: 2 });
+
+                const opts = {
+
+                    secret, issuer, account,
+                    svg, url,
+                    correct, token,
+
+                };
+
+                return ctx.render(<OtpSetup action="/setup" { ...opts } />);
 
             }),
 
