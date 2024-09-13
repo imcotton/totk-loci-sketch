@@ -86,6 +86,16 @@ export function app ({ token, secret, store }: {
 
 
 
+const v_base32 = v.pipe(
+    v.string(),
+    v.regex(/^[A-Z2-7]+={0,6}$/),
+    v.transform(str => str.replaceAll('=', '')),
+);
+
+
+
+
+
 function new_validator_hook (
 
         { success, issues }: v.SafeParseResult<ReturnType<typeof local>>,
