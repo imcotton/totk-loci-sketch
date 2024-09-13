@@ -69,10 +69,14 @@ export function app ({ token, secret, store }: {
                 ]);
 
                 return ctx.render(
-                    <p>
-                        go to
-                        <a href={ url }>{ url }</a>
-                    </p>
+                    <ul>
+                        <li>
+                            <a href="/">back</a>
+                        </li>
+                        <li>
+                            go to <a href={ url } target="_blank">{ url }</a>
+                        </li>
+                    </ul>
                 );
 
             }),
