@@ -29,8 +29,9 @@ const Coord = ({ name, min, max, pattern = '-?\d{4}' }: {
 
 
 
-export const DraftForm = memo(({ digit, need_otp }: {
+export const DraftForm = memo(({ action, digit, need_otp }: {
 
+        action: string,
         digit: number,
         need_otp: boolean,
 
@@ -38,7 +39,7 @@ export const DraftForm = memo(({ digit, need_otp }: {
 
     <div style="max-width: 30em; margin: auto">
 
-        <form action="/new" method="post">
+        <form action={ action } method="post">
 
             <article>
 

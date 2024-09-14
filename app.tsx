@@ -40,12 +40,16 @@ export function app ({ token, secret, store }: {
 
     return (new_hono(store)
 
-        .get('/', CSP, ctx => ctx.render(<DraftForm
+        .get('/', CSP, ctx => ctx.render(
 
-            digit={ otp_digit }
-            need_otp={ secret != null }
+            <DraftForm action="/new?pretty"
 
-        />))
+                digit={ otp_digit }
+                need_otp={ secret != null }
+
+            />
+
+        ))
 
         .post('/new',
 
