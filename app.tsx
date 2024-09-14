@@ -49,7 +49,11 @@ export function app ({ token, secret, store }: {
 
         .post('/new',
 
-            vValidator('form', local(inputs, guard), new_validator_hook),
+            vValidator('form', v.objectAsync({
+                otp: mk_otp_schema(otp_digit, guard),
+            })),
+
+            vValidator('form', local(inputs), new_validator_hook),
 
             ctx => try_catch(async function () {
 
@@ -313,82 +317,78 @@ function new_hono (store: Cache) {
 
 
 
-const pre_check = (digits: number) => ({
+function otp_check (secret?: string) {
 
-    otp_check (
+    if (secret != null) {
 
-            secret?: string,
+        return async function (token: string) {
 
-    ) {
+            try {
 
-        if (secret != null) {
+                return true === await verify({ token, secret });
 
-            return async function (token: string) {
+            } catch (err) {
 
-                try {
+                console.error(err);
 
-                    return true === await verify({ token, secret });
+                return false;
 
-                } catch (err) {
-
-                    console.error(err);
-
-                    return false;
-
-                }
-
-            };
-
-        }
-
-    },
-
-    local (
-
-            { entries: { issue, ...rest } }: typeof inputs,
-            verify?: (_: string) => Promise<boolean>,
-
-    ) {
-
-        const base = {
-
-            ...rest,
-
-            issue: v.pipe(
-                v.string(),
-                v.transform(Number.parseInt),
-                issue,
-            ),
-
-            publish: v.optional(v.pipe(
-                v.literal('on'),
-                v.transform(check => check === 'on'),
-            )),
+            }
 
         };
 
-        if (verify == null) {
-            return v.object(base);
-        }
+    }
 
-        return v.objectAsync({
+}
 
-            ...base,
 
-            otp: v.pipeAsync(
-                v.string(),
-                v.length(digits),
-                v.decimal(),
-                v.checkAsync(verify, 'OTP verify failed'),
-            ),
 
-        });
 
-    },
 
-});
+function local ({ entries: { issue, ...rest } }: typeof inputs) {
 
-const { otp_check, local } = pre_check(otp_digit);
+    return v.object({
+
+        ...rest,
+
+        issue: v.pipe(
+            v.string(),
+            v.transform(Number.parseInt),
+            issue,
+        ),
+
+        publish: v.optional(v.pipe(
+            v.literal('on'),
+            v.transform(check => check === 'on'),
+        )),
+
+    });
+
+}
+
+
+
+
+
+function mk_otp_schema (
+
+        digits: number,
+        verify?: (_: string) => Promise<boolean>,
+
+) {
+
+    if (verify == null) {
+        return v.optional(v.string());
+    }
+
+    return v.nonOptionalAsync(v.pipeAsync(
+        v.string(),
+        v.length(digits),
+        v.decimal(),
+        v.checkAsync(verify, 'OTP verify failed'),
+    ));
+
+}
 
 
 
