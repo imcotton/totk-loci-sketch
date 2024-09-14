@@ -5,6 +5,7 @@ import type { Context }  from 'hono';
 import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
+import { prettyJSON }    from 'hono/pretty-json';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
@@ -274,6 +275,8 @@ function new_hono (store: Cache) {
     const mount = make_cache([ pico_css ]);
 
     const hono = new Hono()
+
+        .use(prettyJSON({ space: 4 }))
 
         .use(jsxRenderer(({ children }) => <html>
 
