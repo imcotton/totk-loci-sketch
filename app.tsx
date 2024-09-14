@@ -94,12 +94,12 @@ export function app ({ token, secret, store }: {
 
         .on([ 'GET', 'POST' ], '/setup', CSP,
 
-            vValidator('form', v.object({
-                secret: v.optional(v_base32),
-                issuer: v.optional(v.string()),
-                account: v.optional(v.string()),
-                otp: v.optional(v.string()),
-            })),
+            vValidator('form', v.partial(v.object({
+                secret: v_base32,
+                issuer: v.string(),
+                account: v.string(),
+                otp: v.string(),
+            }))),
 
             ctx => try_catch(async function () {
 
