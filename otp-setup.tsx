@@ -1,45 +1,11 @@
 /** @jsx jsx */ void jsx;
 
-import { jsx }        from 'hono/jsx';
-import { raw }        from 'hono/html';
-import { css, Style } from 'hono/css';
+import { jsx } from 'hono/jsx';
+import { raw } from 'hono/html';
+import { css } from 'hono/css';
 
 import { qrcode } from '@libs/qrcode';
 import { otpauth } from '@libs/crypto/totp';
-
-
-
-
-
-const style = css`
-
-    [x-column] {
-        justify-items: center;
-        align-items: center;
-    }
-
-    [x-column] [x-qrcode] {
-        max-width: 15em;
-    }
-
-    [x-column] [x-qrcode] svg {
-        width: 100%;
-    }
-
-    [x-import-url] {
-        text-align: right;
-        padding: 1rem;
-    }
-
-    [x-check] {
-        align-items: center;
-    }
-
-    [x-check] > fieldset {
-        margin-bottom: 0;
-    }
-
-`;
 
 
 
@@ -61,9 +27,7 @@ export function OtpSetup ({ action, secret, issuer, account, correct }: {
 
     return (<form action={ action } method="post">
 
-        <Style>{ style }</Style>
-
-        <article>
+        <article class={ style }>
 
             <header>
                 <a href="/">{ '<' } back</a>
@@ -132,4 +96,45 @@ export function OtpSetup ({ action, secret, issuer, account, correct }: {
     </form>);
 
 }
+
+
+
+
+
+const style = css`
+
+    & [x-column] {
+
+        justify-items: center;
+        align-items: center;
+
+        & [x-qrcode] {
+
+            max-width: 15em;
+
+            & svg {
+                width: 100%;
+            }
+        }
+
+    }
+
+    & [x-import-url] {
+
+        text-align: right;
+        padding: 1rem;
+
+    }
+
+    & [x-check] {
+
+        align-items: center;
+
+        & > fieldset {
+            margin-bottom: 0;
+        }
+
+    }
+
+`;
 
