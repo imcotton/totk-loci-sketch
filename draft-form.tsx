@@ -1,16 +1,18 @@
 /** @jsx jsx */ void jsx;
 
 import { jsx, memo } from 'hono/jsx';
+import { css }       from 'hono/css';
 
 
 
 
 
-const Coord = ({ name, min, max, pattern = '-?\d{4}' }: {
+const Coord = ({ name, min, max, of, pattern = '-?\d{4}' }: {
 
         name: string,
         min: number,
         max: number,
+        of?: string,
         pattern?: string,
 
 }) => (
@@ -20,6 +22,7 @@ const Coord = ({ name, min, max, pattern = '-?\d{4}' }: {
             minlength={ min }
             maxlength={ max }
             pattern={ pattern }
+            placeholder={ of }
             required
     />
 
@@ -29,108 +32,123 @@ const Coord = ({ name, min, max, pattern = '-?\d{4}' }: {
 
 
 
-export const DraftForm = memo(({ action, digit, need_otp }: {
+export const DraftForm = memo(function ({ action, digit, need_otp }: {
 
         action: string,
         digit: number,
         need_otp: boolean,
 
-}) => (
+}) {
 
-    <div style="max-width: 30em; margin: auto">
+    return (<article x-draft-form>
 
         <form action={ action } method="post">
 
-            <article>
+            <header>
 
-                <header>New</header>
+                <label class={ publish }>
+                    <span>draft</span>
+                    <input type="checkbox" role="switch" name="publish" />
+                    <span x-on>publish</span>
+                </label>
 
-                <fieldset>
+            </header>
 
-                    <div class="grid" style="align-items: center">
+            <fieldset>
 
-                        <label>issue
-                            <input  name="issue"
-                                    type="number"
-                                    inputmode="numeric"
-                                    required
-                            />
-                        </label>
+                <label>issue N<u>o</u>
+                    <input  name="issue"
+                            type="number"
+                            inputmode="numeric"
+                            required
+                    />
+                </label>
 
-                        <label>
-                            <input type="checkbox" name="publish" />
-                            publish
-                        </label>
+                <label>title
+                    <input  name="title"
+                            type="text"
+                            autocapitalize="off"
+                            required
+                    />
+                </label>
 
+                <label>intro
+                    <input type="text" name="intro" required />
+                </label>
+
+                <label>image
+                    <input  name="image"
+                            type="text"
+                            autocorrect="off"
+                            autocomplete="off"
+                            autocapitalize="off"
+                            required
+                    />
+                </label>
+
+                <label>coordinates
+                    <div class="grid">
+                        <Coord name="coordinates" of="x" min={ 4 } max={ 5 } />
+                        <Coord name="coordinates" of="y" min={ 4 } max={ 5 } />
+                        <Coord name="coordinates" of="z" min={ 4 } max={ 5 } />
                     </div>
+                </label>
 
-                    <label>title
-                        <input  name="title"
+            </fieldset>
+
+            <footer>
+
+                { need_otp === false
+
+                    ? <input type="submit" value="Create" />
+
+                    : <fieldset role="group">
+
+                        <input  name="otp"
                                 type="text"
-                                autocapitalize="off"
+                                inputmode="numeric"
+                                autocomplete="one-time-code"
+                                minlength={ digit }
+                                maxlength={ digit }
+                                placeholder="OTP code"
                                 required
                         />
-                    </label>
 
-                    <label>intro
-                        <input type="text" name="intro" required />
-                    </label>
+                        <input type="submit" value="Create" />
 
-                    <label>image
-                        <input  name="image"
-                                type="text"
-                                autocorrect="off"
-                                autocomplete="off"
-                                autocapitalize="off"
-                                required
-                        />
-                    </label>
+                    </fieldset>
 
-                    <label>coordinates
-                        <div class="grid">
-                            <Coord name="coordinates" min={ 4 } max={ 5 } />
-                            <Coord name="coordinates" min={ 4 } max={ 5 } />
-                            <Coord name="coordinates" min={ 4 } max={ 5 } />
-                        </div>
-                    </label>
+                }
 
-                </fieldset>
+                <small>
+                    <a href="/setup">setup OTP</a>
+                </small>
 
-                <footer>
-
-                    { need_otp === false
-
-                        ? <input type="submit" value="Create" />
-
-                        : <fieldset role="group">
-
-                            <input  name="otp"
-                                    type="text"
-                                    inputmode="numeric"
-                                    autocomplete="one-time-code"
-                                    minlength={ digit }
-                                    maxlength={ digit }
-                                    placeholder={ `${ digit }-digit Code` }
-                                    required
-                            />
-
-                            <input type="submit" value="Create" />
-
-                        </fieldset>
-
-                    }
-
-                    <small>
-                        <a href="/setup">setup OTP</a>
-                    </small>
-
-                </footer>
-
-            </article>
+            </footer>
 
         </form>
 
-    </div>
+    </article>);
 
-));
+});
+
+
+
+
+
+const publish = css`
+
+    margin: auto;
+
+    & input {
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
+    & input:checked + [x-on] {
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+`;
 
