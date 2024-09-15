@@ -206,7 +206,7 @@ function make_cache (it: Iterable<{
 
             return router.get(href, ctx => try_catch(async function () {
 
-                const key = ctx.req.raw;
+                const key = ctx.req.raw.url;
 
                 const value = await store.match(key, {
                     ignoreSearch: true,
