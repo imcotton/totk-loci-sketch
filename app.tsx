@@ -2,6 +2,7 @@
 
 import { Hono }          from 'hono';
 import type { Context }  from 'hono';
+import { Style }         from 'hono/css';
 import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
@@ -300,6 +301,8 @@ function new_hono (store: Cache) {
                         href={ pico_css.href }
                         integrity={ pico_css.integrity }
                 />
+
+                <Style />
 
             </head>
 
