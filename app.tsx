@@ -209,9 +209,7 @@ function make_cache (it: Iterable<{
 
                 const key = ctx.req.raw.url;
 
-                const value = await store.match(key, {
-                    ignoreSearch: true,
-                });
+                const value = await store.match(key);
 
                 if (value) {
                     return value;
