@@ -222,7 +222,21 @@ function make_cache (it: Iterable<{
                 });
 
                 if (res.ok === true) {
-                    await store.put(key, res.clone());
+
+                    const headers = new Headers(res.headers);
+
+                    headers.set(
+                        'Cache-Control',
+                        'public, max-age=31536000, immutable',
+                    );
+
+                    const copy = new Response(res.clone().body, {
+                        ...res,
+                        headers,
+                    });
+
+                    await store.put(key, copy);
+
                 }
 
                 return res;
