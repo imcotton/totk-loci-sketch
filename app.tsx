@@ -389,7 +389,7 @@ function mk_otp_schema (
     return v.nonOptionalAsync(v.pipeAsync(
         v.string(),
         v.length(digits),
-        v.decimal(),
+        v.digits(),
         v.checkAsync(verify, 'OTP verify failed'),
     ));
 
