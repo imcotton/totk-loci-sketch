@@ -10,7 +10,7 @@
     "hono": "npm:hono@^4.6.1",
     "hono/valibot-validator": "npm:@hono/valibot-validator@~0.3.0",
     "strip-indent": "npm:strip-indent@^4.0.0",
-    "valibot": "npm:valibot@~0.41.0"
+    "valibot": "npm:valibot@~0.42.0"
   },
   "exports": {
     "./app": "./app.tsx",
