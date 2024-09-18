@@ -41,7 +41,7 @@ export const hero_image = {
 
     href: '/static/image/lookout.jpeg',
 
-    remote: 'https://mataroa.blog/images/d654c989.jpeg',
+    remote: `https://mataroa.blog/images/${ 'd654c989' }.jpeg`,
 
     integrity: 'sha256-qDaxu/O1DmN+wgpb6NIrRtLga1IJ4dG/01n92NhZt7E=',
 
