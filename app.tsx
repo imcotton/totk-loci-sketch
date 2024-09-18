@@ -400,7 +400,7 @@ const CSP = secureHeaders({
 
     contentSecurityPolicy: {
 
-        defaultSrc: [ `'self'` ],
+        defaultSrc: [ `'none'` ],
         styleSrc: [   `'self'`, `'unsafe-inline'` ],
         imgSrc: [     `'self'`, `data:` ],
 
