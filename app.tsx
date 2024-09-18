@@ -15,8 +15,7 @@ import { verify, otpsecret } from '@libs/crypto/totp';
 import * as v from 'valibot';
 
 import { main } from './main.ts';
-import { DraftForm } from './draft-form.tsx';
-import { OtpSetup } from './otp-setup.tsx';
+import { DraftForm, OtpSetup } from './components/index.ts';
 import { catch_refine, inputs } from './common.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
 

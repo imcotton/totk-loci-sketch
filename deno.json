@@ -37,10 +37,9 @@
   "publish": {
     "include": [
       "./vendor/*",
+      "./components/*",
       "./common.ts",
       "./assets.ts",
-      "./draft-form.tsx",
-      "./otp-setup.tsx",
       "./app.tsx",
       "./mod.ts",
       "./main.ts",
