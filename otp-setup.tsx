@@ -1,6 +1,3 @@
-/** @jsx jsx */ void jsx;
-
-import { jsx } from 'hono/jsx';
 import { raw } from 'hono/html';
 import { css } from 'hono/css';
 
