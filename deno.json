@@ -37,6 +37,7 @@
   "publish": {
     "include": [
       "./common.ts",
+      "./assets.ts",
       "./draft-form.tsx",
       "./otp-setup.tsx",
       "./app.tsx",

@@ -18,6 +18,7 @@ import { main } from './main.ts';
 import { DraftForm } from './draft-form.tsx';
 import { OtpSetup } from './otp-setup.tsx';
 import { catch_refine, inputs } from './common.ts';
+import { pico_css, bundle, type Mount } from './assets.ts';
 
 
 
@@ -190,14 +191,7 @@ function new_validator_hook (
 
 
 
-function make_cache (it: Iterable<{
-
-        href: string,
-        remote: string,
-        integrity?: string,
-        Accept?: string,
-
-}>) {
+function make_cache (it: Iterable<Mount>) {
 
     return function (store: Cache, hono: Hono, timeout = 5_000) {
 
@@ -273,27 +267,7 @@ const try_catch = catch_refine(function (err: unknown) {
 
 function new_hono (store: Cache) {
 
-    const pico_css = {
-
-        version: '2.0.6',
-
-        integrity: 'sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=',
-
-        Accept: 'text/css',
-
-        get href () {
-            return `/static/css/pico/${ this.version }/pico.min.css`;
-        },
-
-        base: 'https://esm.sh/@picocss/pico',
-
-        get remote () {
-            return `${ this.base }@${ this.version }/css/pico.min.css`;
-        },
-
-    } as const;
-
-    const mount = make_cache([ pico_css ]);
+    const mount = make_cache(bundle);
 
     const hono = new Hono()
 
