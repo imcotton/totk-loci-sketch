@@ -16,8 +16,8 @@ import * as v from 'valibot';
 
 import { main } from './main.ts';
 import { DraftForm, OtpSetup } from './components/index.ts';
-import { catch_refine, inputs } from './common.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
+import { catch_refine, inputs } from './common.ts';
 
 
 
