@@ -2,7 +2,7 @@
 
 import { Hono }          from 'hono';
 import type { Context }  from 'hono';
-import { Style }         from 'hono/css';
+import { Style, css }    from 'hono/css';
 import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
@@ -18,7 +18,7 @@ import { main } from './main.ts';
 import { DraftForm } from './draft-form.tsx';
 import { OtpSetup } from './otp-setup.tsx';
 import { catch_refine, inputs } from './common.ts';
-import { pico_css, bundle, type Mount } from './assets.ts';
+import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
 
 
 
@@ -42,7 +42,7 @@ export function app ({ token, secret, store }: {
 
     return (new_hono(store)
 
-        .get('/', CSP, ctx => ctx.render(
+        .get('/', CSP, ctx => ctx.render(<div class={ styles.home }>
 
             <DraftForm action="/new?pretty"
 
@@ -51,7 +51,17 @@ export function app ({ token, secret, store }: {
 
             />
 
-        ))
+            <aside>
+
+                <img    src={ hero_image.href }
+                        alt={ hero_image.alt }
+                        decoding="async"
+                        loading="lazy"
+                />
+
+            </aside>
+
+        </div>))
 
         .post('/new',
 
@@ -398,4 +408,37 @@ const CSP = secureHeaders({
     },
 
 });
+
+
+
+
+
+const styles = {
+
+    home: css`
+
+        display: flex;
+        gap: 1rem;
+
+        @media (max-width: 768px) {
+            flex-direction: column-reverse;
+        }
+
+        & [x-draft-form] {
+            flex: 2;
+        }
+
+        & aside {
+
+            flex: 1;
+
+            & img {
+                border-radius: 1em;
+            }
+
+        }
+
+    `,
+
+}
 

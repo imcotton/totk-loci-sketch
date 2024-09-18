@@ -35,9 +35,29 @@ export const pico_css = {
 
 
 
+export const hero_image = {
+
+    alt: 'Link gaze at top of "Temple of Time" next to a Korok',
+
+    href: '/static/image/lookout.jpeg',
+
+    remote: 'https://mataroa.blog/images/d654c989.jpeg',
+
+    integrity: 'sha256-qDaxu/O1DmN+wgpb6NIrRtLga1IJ4dG/01n92NhZt7E=',
+
+    Accept: 'image/jpeg',
+
+} as const;
+
+
+
+
+
 export const bundle: readonly Mount[] = [
 
     pico_css,
+
+    hero_image,
 
 ];
 
