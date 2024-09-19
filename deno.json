@@ -39,6 +39,7 @@
       "./vendor/*",
       "./components/*",
       "./common.ts",
+      "./articles.ts",
       "./assets.ts",
       "./app.tsx",
       "./mod.ts",
