@@ -15,7 +15,8 @@ import { verify, otpsecret } from '@libs/crypto/totp';
 import * as v from 'valibot';
 
 import { main } from './main.ts';
-import { DraftForm, OtpSetup } from './components/index.ts';
+import { use_articles } from './articles.ts';
+import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
 import { catch_refine, inputs } from './common.ts';
 
@@ -39,28 +40,38 @@ export function app ({ token, secret, store }: {
 
     const guard = otp_check(secret);
 
+    const articles = use_articles({ token, store });
+
     return (new_hono(store)
 
-        .get('/', CSP, ctx => ctx.render(<div class={ styles.home }>
+        .get('/', CSP, ctx => try_catch(async function () {
 
-            <DraftForm action="/new?pretty"
+            return ctx.render(<div class={ styles.home }>
 
-                digit={ otp_digit }
-                need_otp={ secret != null }
+                <DraftForm action="/new?pretty"
 
-            />
+                    digit={ otp_digit }
+                    need_otp={ secret != null }
 
-            <aside>
-
-                <img    src={ hero_image.href }
-                        alt={ hero_image.alt }
-                        decoding="async"
-                        loading="lazy"
                 />
 
-            </aside>
+                <aside>
 
-        </div>))
+                    <p>
+                        <img    src={ hero_image.href }
+                                alt={ hero_image.alt }
+                                decoding="async"
+                                loading="lazy"
+                        />
+                    </p>
+
+                    <Outline { ...await articles.load() } />
+
+                </aside>
+
+            </div>);
+
+        }))
 
         .post('/new',
 
@@ -85,6 +96,8 @@ export function app ({ token, secret, store }: {
                         print: resolve,
                         draft: publish !== true,
                     }),
+
+                    articles.obsolete(),
 
                 ]);
 
