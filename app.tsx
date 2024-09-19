@@ -18,7 +18,7 @@ import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
-import { catch_refine, inputs } from './common.ts';
+import { catch_refine, inputs, trimmed } from './common.ts';
 
 
 
@@ -120,9 +120,9 @@ export function app ({ token, secret, store }: {
 
             vValidator('form', v.partial(v.object({
                 secret: v_base32,
-                issuer: v.string(),
-                account: v.string(),
-                otp: v.string(),
+                issuer: trimmed,
+                account: trimmed,
+                otp: trimmed,
             }))),
 
             ctx => try_catch(async function () {
@@ -167,7 +167,7 @@ async function optional_verify (secret: string, token?: string) {
 
 
 const v_base32 = v.pipe(
-    v.string(),
+    trimmed,
     v.regex(/^[A-Z2-7]+={0,6}$/),
     v.transform(str => str.replaceAll('=', '')),
 );
@@ -368,6 +368,7 @@ function local ({ entries: { issue, ...rest } }: typeof inputs) {
 
         issue: v.pipe(
             v.string(),
+            v.trim(),
             v.transform(Number.parseInt),
             issue,
         ),

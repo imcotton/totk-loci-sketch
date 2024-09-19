@@ -26,7 +26,13 @@ export function catch_refine (refine: (err: unknown) => never) {
 
 
 
-const digits = v.pipe(v.string(), v.regex(/^-?\d{4}$/));
+export const trimmed = v.pipe(v.string(), v.trim());
+
+
+
+
+
+const digits = v.pipe(trimmed, v.regex(/^-?\d{4}$/));
 
 
 
@@ -35,9 +41,9 @@ const digits = v.pipe(v.string(), v.regex(/^-?\d{4}$/));
 export const inputs = v.object({
 
     issue: v.pipe(v.number(), v.safeInteger()),
-    title: v.string(),
-    intro: v.string(),
-    image: v.string(),
+    title: trimmed,
+    intro: trimmed,
+    image: trimmed,
     coordinates: v.pipe(v.tuple([ digits, digits, digits ]), v.readonly()),
 
 });
