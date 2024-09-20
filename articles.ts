@@ -20,7 +20,7 @@ export function use_articles ({
         store,
         prefix = 'https://mataroa.blog',
         timeout = 5000,
-        max_age = 60 * 60 * 24 * 1, // 1 day
+        max_age = 60 * 60 * 1, // 1 hour
 
 }: Readonly<Partial<{
 
