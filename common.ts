@@ -4,7 +4,7 @@ import * as v from 'valibot';
 
 
 
-export function catch_refine (refine: (err: unknown) => never) {
+export function catch_refine <E> (refine: (err: unknown) => E) {
 
     return async function <T> (task: () => Promise<T>) {
 
@@ -14,7 +14,7 @@ export function catch_refine (refine: (err: unknown) => never) {
 
         } catch (err) {
 
-            throw refine(err);
+            return refine(err);
 
         }
 
