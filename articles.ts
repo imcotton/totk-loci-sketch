@@ -46,7 +46,7 @@ export function use_articles ({
 
         async load () {
 
-            v.parse(v.string('token'), token);
+            v.parse(v.string('missing the API token'), token);
 
             const cached = await store?.match(url);
 
