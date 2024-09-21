@@ -18,19 +18,19 @@ export type Articles = Awaited<
 
 export function use_articles ({
 
+        kv,
         token,
-        store,
         prefix = 'https://mataroa.blog',
         timeout = 5000,
-        max_age = 60 * 60 * 1, // 1 hour
+        ttl_in_ms: expireIn = 1000 * 60 * 60 * 1, // 1 hour
 
 }: Readonly<Partial<{
 
+        kv: Deno.Kv,
         token: string,
-        store: Cache,
         prefix: string,
         timeout: number,
-        max_age: number,
+        ttl_in_ms: number,
 
 }>>) {
 
@@ -38,11 +38,36 @@ export function use_articles ({
 
     async function load () {
 
+        if (kv) {
+
+            const result = await Promise.all([
+
+                kv.get(      keys.draft.path).then(
+                    v.parser(keys.draft.schema)
+                ),
+
+                kv.get(      keys.published.path).then(
+                    v.parser(keys.published.schema)
+                ),
+
+            ]).then(right, error);
+
+            if (result.type === 'right') {
+
+                const [
+                    { value: draft },
+                    { value: published },
+                ] = result.value;
+
+                return { draft, published };
+
+            }
+
+        }
+
         v.parse(v.string('missing the API token'), token);
 
-        const cached = await store?.match(url);
-
-        const response = cached ? cached : await fetch(url, {
+        const response = await fetch(url, {
 
             signal: AbortSignal.timeout(timeout),
 
@@ -50,25 +75,24 @@ export function use_articles ({
                 Authorization: `Bearer ${ token }`,
             },
 
-        }).then(async function (res) {
-
-            if (res.ok === true && store) {
-
-                await store.put(url, new Response(res.clone().body, {
-                    headers: {
-                        'Cache-Control': `max-age=${ max_age }`,
-                    },
-                }));
-
-            }
-
-            return res;
-
         });
 
         v.parse(is_true, response.ok, { message: response.statusText });
 
-        return response.json().then(parse);
+        const { draft, published } = await response.json().then(parse);
+
+        if (kv) {
+
+            kv.atomic()
+                .set(keys.draft.path,         draft, { expireIn })
+                .set(keys.published.path, published, { expireIn })
+                .commit()
+                .catch(error)
+            ;
+
+        }
+
+        return { draft, published };
 
     }
 
@@ -92,8 +116,14 @@ export function use_articles ({
 
         async obsolete () {
 
-            if (store != null) {
-                await store.delete(url);
+            if (kv) {
+
+                await kv.atomic()
+                    .delete(keys.draft.path)
+                    .delete(keys.published.path)
+                    .commit()
+                ;
+
             }
 
         },
@@ -105,13 +135,13 @@ export function use_articles ({
 
 
 
-
 const is_true = v.literal(true);
 
 const base = {
     title: v.string('title'),
     slug: v.string('slug'),
     url: v.pipe(v.string('url'), v.url()),
+    published_at: v.nullish(v.string('published_at')),
 };
 
 const published_at = v.pipe(
@@ -120,22 +150,24 @@ const published_at = v.pipe(
     v.description('ISO date'),
 );
 
-const has_dates_on = v.parser(v.array(v.object({
-    ...base,
-    published_at,
-})));
+const arr_draft = v.array(v.object(base));
+
+const arr_published = v.array(v.object({ ...base, published_at }));
+
+const keys = {
+
+    draft: gen([     'api', 'posts',     'draft' ], arr_draft),
+    published: gen([ 'api', 'posts', 'published' ], arr_published),
+
+};
+
+const has_dates_on = v.parser(arr_published);
 
 const parse = v.parser(v.pipe(
 
     v.object({
-
         ok: is_true,
-
-        post_list: v.optional(v.array(v.object({
-            ...base,
-            published_at: v.nullish(v.string('published_at')),
-        }))),
-
+        post_list: v.optional(arr_draft),
     }),
 
     v.transform(function ({ post_list = [] }) {
@@ -150,11 +182,32 @@ const parse = v.parser(v.pipe(
     v.transform(function ({ draft = [], published = [] }) {
 
         return {
-            draft,
-            published: has_dates_on(published),
+            draft: draft.slice(0, 3),
+            published: has_dates_on(published).slice(0, 5),
         };
 
     }),
 
 ));
+
+
+
+
+
+function gen <
+
+    const K extends readonly string[],
+    V extends v.GenericSchema,
+
+> (path: K, value: V) {
+
+    const schema = v.object({
+        value,
+        key: v.strictTuple(path.map(v.literal)),
+        versionstamp: v.string(),
+    });
+
+    return { path, schema };
+
+}
 
