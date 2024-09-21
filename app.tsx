@@ -18,6 +18,7 @@ import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
+import * as E from './either.ts';
 import { catch_refine, inputs, trimmed } from './common.ts';
 
 
@@ -46,6 +47,8 @@ export function app ({ token, secret, store }: {
 
         .get('/', CSP, ctx => try_catch(async function () {
 
+            const latest = await articles.load().then(E.right, E.error);
+
             return ctx.render(<div class={ styles.home }>
 
                 <DraftForm action="/new?pretty"
@@ -65,7 +68,11 @@ export function app ({ token, secret, store }: {
                         />
                     </p>
 
-                    <Outline { ...await articles.load() } />
+                    {
+                        latest.type === 'right'
+                            ? <Outline { ...latest.value } />
+                            : <mark>{ latest.error.message }</mark>
+                    }
 
                 </aside>
 
