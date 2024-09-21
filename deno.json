@@ -23,6 +23,9 @@
     "dev": "deno serve --env -E=MATAROA_API_KEY,OTP_SECRET -N=mataroa.blog:443,esm.sh:443 --watch deploy/deno.ts",
     "post": "./draft.ts"
   },
+  "unstable": [
+    "kv"
+  ],
   "compilerOptions": {
     "jsx": "precompile",
     "jsxImportSource": "hono/jsx",
