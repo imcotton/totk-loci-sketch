@@ -18,7 +18,6 @@ import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
-import * as E from './either.ts';
 import { catch_refine, inputs, trimmed } from './common.ts';
 
 
@@ -47,7 +46,7 @@ export function app ({ token, secret, store }: {
 
         .get('/', CSP, ctx => try_catch(async function () {
 
-            const latest = await articles.load().then(E.right, E.error);
+            const latest = await articles.load_either();
 
             return ctx.render(<div class={ styles.home }>
 

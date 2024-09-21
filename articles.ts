@@ -1,5 +1,7 @@
 import * as v from 'valibot';
 
+import { right, error } from './either.ts';
+
 
 
 
@@ -34,7 +36,59 @@ export function use_articles ({
 
     const url = prefix.concat('/api/posts/');
 
+    async function load () {
+
+        v.parse(v.string('missing the API token'), token);
+
+        const cached = await store?.match(url);
+
+        const response = cached ? cached : await fetch(url, {
+
+            signal: AbortSignal.timeout(timeout),
+
+            headers: {
+                Authorization: `Bearer ${ token }`,
+            },
+
+        }).then(async function (res) {
+
+            if (res.ok === true && store) {
+
+                await store.put(url, new Response(res.clone().body, {
+                    headers: {
+                        'Cache-Control': `max-age=${ max_age }`,
+                    },
+                }));
+
+            }
+
+            return res;
+
+        });
+
+        v.parse(is_true, response.ok, { message: response.statusText });
+
+        return response.json().then(parse);
+
+    }
+
     return {
+
+        load,
+
+        async load_either () {
+
+            try {
+
+                return right(await load());
+
+            } catch (cause) {
+
+                return error(cause);
+
+            }
+
+        },
 
         async obsolete () {
 
@@ -44,43 +98,7 @@ export function use_articles ({
 
         },
 
-        async load () {
-
-            v.parse(v.string('missing the API token'), token);
-
-            const cached = await store?.match(url);
-
-            const response = cached ? cached : await fetch(url, {
-
-                signal: AbortSignal.timeout(timeout),
-
-                headers: {
-                    Authorization: `Bearer ${ token }`,
-                },
-
-            }).then(async function (res) {
-
-                if (res.ok === true && store) {
-
-                    await store.put(url, new Response(res.clone().body, {
-                        headers: {
-                            'Cache-Control': `max-age=${ max_age }`,
-                        },
-                    }));
-
-                }
-
-                return res;
-
-            });
-
-            v.parse(is_true, response.ok, { message: response.statusText });
-
-            return response.json().then(parse);
-
-        },
-
-    }
+    };
 
 }
 
