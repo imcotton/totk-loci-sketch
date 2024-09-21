@@ -17,11 +17,13 @@ const {
 
 
 
+const kv = await Deno.openKv();
+
 const store = await caches.open('assets-v1');
 
 
 
 
 
-export default app({ token, secret, store });
+export default app({ token, secret, kv, store });
 

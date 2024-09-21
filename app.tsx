@@ -30,17 +30,18 @@ const otp_digit = 6;
 
 
 
-export function app ({ token, secret, store }: {
+export function app ({ token, secret, kv, store }: {
 
         token?: string,
         secret?: string,
+        kv?: Deno.Kv,
         store: Cache,
 
 }): { fetch (_: Request): Response | Promise<Response> } {
 
     const guard = otp_check(secret);
 
-    const articles = use_articles({ token, store });
+    const articles = use_articles({ kv, token });
 
     return (new_hono(store)
 
