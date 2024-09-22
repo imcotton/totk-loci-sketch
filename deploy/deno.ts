@@ -21,9 +21,11 @@ const kv = await Deno.openKv();
 
 const store = await caches.open('assets-v1');
 
+const server_timing = false;
 
 
 
 
-export default app({ token, secret, kv, store });
+
+export default app({ token, secret, kv, store, server_timing });
 

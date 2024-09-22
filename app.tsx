@@ -7,6 +7,7 @@ import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
 import { prettyJSON }    from 'hono/pretty-json';
+import { timing }        from 'hono/timing';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
@@ -30,11 +31,12 @@ const otp_digit = 6;
 
 
 
-export function app ({ token, secret, kv, store }: {
+export function app ({ token, secret, kv, store, server_timing }: {
 
         token?: string,
         secret?: string,
         kv?: Deno.Kv,
+        server_timing?: boolean,
         store: Cache,
 
 }): { fetch (_: Request): Response | Promise<Response> } {
@@ -43,7 +45,7 @@ export function app ({ token, secret, kv, store }: {
 
     const articles = use_articles({ kv, token });
 
-    return (new_hono(store)
+    return (new_hono(store, server_timing)
 
         .get('/', CSP, ctx => try_catch(async function () {
 
@@ -294,13 +296,15 @@ const try_catch = catch_refine(function (err: unknown) {
 
 
 
-function new_hono (store: Cache) {
+function new_hono (store: Cache, server_timing?: boolean) {
 
     const mount = make_cache(bundle);
 
     const hono = new Hono()
 
         .use(prettyJSON({ space: 4 }))
+
+        .use(timing({ enabled: server_timing === true }))
 
         .use(jsxRenderer(({ children }) => <html>
 
