@@ -18,6 +18,7 @@ import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
+import { timing, use_clock } from './clock.ts';
 import { catch_refine, inputs, trimmed } from './common.ts';
 
 
@@ -30,11 +31,12 @@ const otp_digit = 6;
 
 
 
-export function app ({ token, secret, kv, store }: {
+export function app ({ token, secret, kv, store, server_timing }: {
 
         token?: string,
         secret?: string,
         kv?: Deno.Kv,
+        server_timing?: boolean,
         store: Cache,
 
 }): { fetch (_: Request): Response | Promise<Response> } {
@@ -43,11 +45,11 @@ export function app ({ token, secret, kv, store }: {
 
     const articles = use_articles({ kv, token });
 
-    return (new_hono(store)
+    return (new_hono(store, server_timing)
 
         .get('/', CSP, ctx => try_catch(async function () {
 
-            const latest = await articles.load_either();
+            const latest = await articles.load_either(use_clock(ctx));
 
             return ctx.render(<div class={ styles.home }>
 
@@ -294,13 +296,15 @@ const try_catch = catch_refine(function (err: unknown) {
 
 
 
-function new_hono (store: Cache) {
+function new_hono (store: Cache, server_timing?: boolean) {
 
     const mount = make_cache(bundle);
 
     const hono = new Hono()
 
         .use(prettyJSON({ space: 4 }))
+
+        .use(timing({ enabled: server_timing === true }))
 
         .use(jsxRenderer(({ children }) => <html>
 
