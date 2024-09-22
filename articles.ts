@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 
+import type { Clock } from "./clock.ts";
 import { right, error } from './either.ts';
 
 
@@ -34,9 +35,13 @@ export function use_articles ({
 
 }>>) {
 
-    async function load () {
+    async function load (clock?: Clock) {
+
+        let next: string | undefined;
 
         if (kv) {
+
+            next = clock?.start('kv');
 
             const result = await kv.getMany([
 
@@ -49,6 +54,8 @@ export function use_articles ({
                 keys.published.schema,
 
             ]))).then(right, error);
+
+            next && clock?.end(next);
 
             if (result.type === 'right') {
 
@@ -67,6 +74,8 @@ export function use_articles ({
 
         const url = prefix.concat('/api/posts/');
 
+        next = clock?.start('fetch');
+
         const response = await fetch(url, {
 
             signal: AbortSignal.timeout(timeout),
@@ -79,7 +88,15 @@ export function use_articles ({
 
         v.parse(is_true, response.ok, { message: response.statusText });
 
-        const { draft, published } = await response.json().then(parse);
+        const raw = await response.json();
+
+        next && clock?.end(next);
+
+        next = clock?.start('parse');
+
+        const { draft, published } = parse(raw);
+
+        next && clock?.end(next);
 
         if (kv) {
 
@@ -100,11 +117,11 @@ export function use_articles ({
 
         load,
 
-        async load_either () {
+        async load_either (clock?: Clock) {
 
             try {
 
-                return right(await load());
+                return right(await load(clock));
 
             } catch (cause) {
 

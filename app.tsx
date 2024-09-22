@@ -18,6 +18,7 @@ import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
+import { timing, use_clock } from './clock.ts';
 import { catch_refine, inputs, trimmed } from './common.ts';
 
 
@@ -47,7 +48,13 @@ export function app ({ token, secret, kv, store }: {
 
         .get('/', CSP, ctx => try_catch(async function () {
 
-            const latest = await articles.load_either();
+            const clock = use_clock(ctx);
+
+            clock.start('articles');
+
+            const latest = await articles.load_either(clock);
+
+            clock.end('articles');
 
             return ctx.render(<div class={ styles.home }>
 
@@ -301,6 +308,8 @@ function new_hono (store: Cache) {
     const hono = new Hono()
 
         .use(prettyJSON({ space: 4 }))
+
+        .use('*', timing({ enabled: ctx => ctx.req.method === 'GET' }))
 
         .use(jsxRenderer(({ children }) => <html>
 
