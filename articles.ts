@@ -38,17 +38,17 @@ export function use_articles ({
 
         if (kv) {
 
-            const result = await Promise.all([
+            const result = await kv.getMany([
 
-                kv.get( keys.draft.path).then(v.parser(
-                        keys.draft.schema
-                )),
+                keys.draft.path,
+                keys.published.path,
 
-                kv.get( keys.published.path).then(v.parser(
-                        keys.published.schema
-                )),
+            ]).then(v.parser(v.strictTuple([
 
-            ]).then(right, error);
+                keys.draft.schema,
+                keys.published.schema,
+
+            ]))).then(right, error);
 
             if (result.type === 'right') {
 
