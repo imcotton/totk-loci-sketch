@@ -48,7 +48,7 @@ export function app ({ kv, store, token, secret, server_timing }: {
 
     const mount_assets_to = make_cache(bundle, store);
 
-    return mount_assets_to(new_hono(server_timing)
+    return mount_assets_to(new_hono(server_timing))
 
         .get('/', CSP, ctx => try_catch(async function () {
 
@@ -156,7 +156,7 @@ export function app ({ kv, store, token, secret, server_timing }: {
 
         )
 
-    );
+    ;
 
 }
 
