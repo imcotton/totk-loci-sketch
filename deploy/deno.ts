@@ -17,7 +17,7 @@ const {
 
 
 
-const kv = await Deno.openKv();
+const kv = await Deno?.openKv?.();
 
 const store = await caches.open('assets-v1');
 
