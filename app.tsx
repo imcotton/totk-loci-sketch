@@ -5,22 +5,22 @@ import type { Context }  from 'hono';
 import { Style, css }    from 'hono/css';
 import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
-import { HTTPException } from 'hono/http-exception';
 import { prettyJSON }    from 'hono/pretty-json';
 import { timing }        from 'hono/timing';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
-import { verify, otpsecret } from '@libs/crypto/totp';
+import { otpsecret } from '@libs/crypto/totp';
 
 import * as v from 'valibot';
 
 import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
-import { hero_image, pico_css, bundle, type Mount } from './assets.ts';
+import { hero_image, pico_css, bundle } from './assets.ts';
 import { use_clock } from './clock.ts';
-import { catch_refine, inputs, trimmed } from './common.ts';
+import * as u from './utils.ts';
+import { inputs, trimmed } from './common.ts';
 
 
 
@@ -42,15 +42,15 @@ export function app ({ kv, store, token, secret, server_timing }: {
 
 }): { fetch (_: Request): Response | Promise<Response> } {
 
-    const guard = otp_check(secret);
+    const guard = u.otp_check(secret);
 
     const articles = use_articles({ kv, token });
 
-    const mount_assets_to = make_cache(bundle, store);
+    const mount_assets_to = u.make_cache(bundle, store);
 
     return mount_assets_to(new_hono(server_timing))
 
-        .get('/', CSP, ctx => try_catch(async function () {
+        .get('/', CSP, ctx => u.try_catch(async function () {
 
             const latest = await articles.load_either(use_clock(ctx));
 
@@ -88,12 +88,12 @@ export function app ({ kv, store, token, secret, server_timing }: {
         .post('/new',
 
             vValidator('form', v.objectAsync({
-                otp: mk_otp_schema(otp_digit, guard),
+                otp: u.mk_otp_schema(otp_digit, guard),
             })),
 
-            vValidator('form', local(inputs), new_validator_hook),
+            vValidator('form', u.local(inputs), new_validator_hook),
 
-            ctx => try_catch(async function () {
+            ctx => u.try_catch(async function () {
 
                 const { publish, ...rest } = ctx.req.valid('form');
 
@@ -131,13 +131,13 @@ export function app ({ kv, store, token, secret, server_timing }: {
         .on([ 'GET', 'POST' ], '/setup', CSP,
 
             vValidator('form', v.partial(v.object({
-                secret: v_base32,
+                secret: u.v_base32,
                 issuer: trimmed,
                 account: trimmed,
                 otp: trimmed,
             }))),
 
-            ctx => try_catch(async function () {
+            ctx => u.try_catch(async function () {
 
                 const {
                     secret = otpsecret(),
@@ -146,7 +146,7 @@ export function app ({ kv, store, token, secret, server_timing }: {
                     otp: token,
                 } = ctx.req.valid('form');
 
-                const correct = await optional_verify(secret, token);
+                const correct = await u.optional_verify(secret, token);
 
                 const opts = { secret, issuer, account, correct };
 
@@ -164,33 +164,9 @@ export function app ({ kv, store, token, secret, server_timing }: {
 
 
 
-async function optional_verify (secret: string, token?: string) {
-
-    if (typeof token === 'string' && token.length > 0) {
-
-        return true === await verify({ secret, token });
-
-    }
-
-}
-
-
-
-
-
-const v_base32 = v.pipe(
-    trimmed,
-    v.regex(/^[A-Z2-7]+={0,6}$/),
-    v.transform(str => str.replaceAll('=', '')),
-);
-
-
-
-
-
 function new_validator_hook (
 
-        { success, issues }: v.SafeParseResult<ReturnType<typeof local>>,
+        { success, issues }: v.SafeParseResult<ReturnType<typeof u.local>>,
         ctx: Context,
 
 ) {
@@ -220,80 +196,6 @@ function new_validator_hook (
     }
 
 }
-
-
-
-
-
-function make_cache (it: Iterable<Mount>, store?: Cache) {
-
-    return function (hono: Hono, timeout = 5_000) {
-
-        return Array.from(it).reduce(function (router, info) {
-
-            const { href, remote, integrity, Accept = '*/*' } = info;
-
-            return router.get(href, ctx => try_catch(async function () {
-
-                const key = ctx.req.raw.url;
-
-                const value = await store?.match(key);
-
-                if (value != null) {
-                    return value;
-                }
-
-                const res = await fetch(remote, {
-                    integrity,
-                    headers: { Accept },
-                    signal: AbortSignal.timeout(timeout),
-                });
-
-                if ((store != null) && (res.ok === true)) {
-
-                    const headers = new Headers(res.headers);
-
-                    headers.set(
-                        'Cache-Control',
-                        'public, max-age=31536000, immutable',
-                    );
-
-                    const copy = new Response(res.clone().body, {
-                        ...res,
-                        headers,
-                    });
-
-                    await store.put(key, copy);
-
-                }
-
-                return res;
-
-            }));
-
-        }, hono);
-
-    };
-
-}
-
-
-
-
-
-const try_catch = catch_refine(function (err: unknown) {
-
-    if (err instanceof HTTPException) {
-        throw err;
-    }
-
-    if (err instanceof Error) {
-        throw new HTTPException(500, { message: err.message });
-    }
-
-    throw new HTTPException(500, { message: 'unknown' });
-
-});
 
 
 
@@ -335,84 +237,6 @@ function new_hono (server_timing = false) {
         </html>))
 
     );
-
-}
-
-
-
-
-
-function otp_check (secret?: string) {
-
-    if (secret != null) {
-
-        return async function (token: string) {
-
-            try {
-
-                return true === await verify({ token, secret });
-
-            } catch (err) {
-
-                console.error(err);
-
-                return false;
-
-            }
-
-        };
-
-    }
-
-}
-
-
-
-
-
-function local ({ entries: { issue, ...rest } }: typeof inputs) {
-
-    return v.object({
-
-        ...rest,
-
-        issue: v.pipe(
-            v.string(),
-            v.trim(),
-            v.transform(Number.parseInt),
-            issue,
-        ),
-
-        publish: v.optional(v.pipe(
-            v.literal('on'),
-            v.transform(check => check === 'on'),
-        )),
-
-    });
-
-}
-
-
-
-
-
-function mk_otp_schema (
-
-        digits: number,
-        verify?: (_: string) => Promise<boolean>,
-
-) {
-
-    if (verify == null) {
-        return v.optional(v.string());
-    }
-
-    return v.nonOptionalAsync(v.pipeAsync(
-        v.string(),
-        v.length(digits),
-        v.digits(),
-        v.checkAsync(verify, 'OTP verify failed'),
-    ));
 
 }
 

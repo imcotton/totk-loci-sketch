@@ -1,0 +1,187 @@
+import { type Hono }     from 'hono';
+import { HTTPException } from 'hono/http-exception';
+
+import { verify } from '@libs/crypto/totp';
+
+import * as v from 'valibot';
+
+import { type Mount } from './assets.ts';
+import { catch_refine, trimmed, type inputs } from './common.ts';
+
+
+
+
+
+export function local ({ entries: { issue, ...rest } }: typeof inputs) {
+
+    return v.object({
+
+        ...rest,
+
+        issue: v.pipe(
+            v.string(),
+            v.trim(),
+            v.transform(Number.parseInt),
+            issue,
+        ),
+
+        publish: v.optional(v.pipe(
+            v.literal('on'),
+            v.transform(check => check === 'on'),
+        )),
+
+    });
+
+}
+
+
+
+
+
+export const try_catch = catch_refine(function (err: unknown) {
+
+    if (err instanceof HTTPException) {
+        throw err;
+    }
+
+    if (err instanceof Error) {
+        throw new HTTPException(500, { message: err.message });
+    }
+
+    throw new HTTPException(500, { message: 'unknown' });
+
+});
+
+
+
+
+
+export function make_cache (it: Iterable<Mount>, store?: Cache) {
+
+    return function (hono: Hono, timeout = 5_000) {
+
+        return Array.from(it).reduce(function (router, info) {
+
+            const { href, remote, integrity, Accept = '*/*' } = info;
+
+            return router.get(href, ctx => try_catch(async function () {
+
+                const key = ctx.req.raw.url;
+
+                const value = await store?.match(key);
+
+                if (value != null) {
+                    return value;
+                }
+
+                const res = await fetch(remote, {
+                    integrity,
+                    headers: { Accept },
+                    signal: AbortSignal.timeout(timeout),
+                });
+
+                if ((store != null) && (res.ok === true)) {
+
+                    const headers = new Headers(res.headers);
+
+                    headers.set(
+                        'Cache-Control',
+                        'public, max-age=31536000, immutable',
+                    );
+
+                    const copy = new Response(res.clone().body, {
+                        ...res,
+                        headers,
+                    });
+
+                    await store.put(key, copy);
+
+                }
+
+                return res;
+
+            }));
+
+        }, hono);
+
+    };
+
+}
+
+
+
+
+
+export async function optional_verify (secret: string, token?: string) {
+
+    if (typeof token === 'string' && token.length > 0) {
+
+        return true === await verify({ secret, token });
+
+    }
+
+}
+
+
+
+
+
+export function otp_check (secret?: string) {
+
+    if (secret != null) {
+
+        return async function (token: string) {
+
+            try {
+
+                return true === await verify({ token, secret });
+
+            } catch (err) {
+
+                console.error(err);
+
+                return false;
+
+            }
+
+        };
+
+    }
+
+}
+
+
+
+
+
+
+export function mk_otp_schema (
+
+        digits: number,
+        verify?: (_: string) => Promise<boolean>,
+
+) {
+
+    if (verify == null) {
+        return v.optional(v.string());
+    }
+
+    return v.nonOptionalAsync(v.pipeAsync(
+        v.string(),
+        v.length(digits),
+        v.digits(),
+        v.checkAsync(verify, 'OTP verify failed'),
+    ));
+
+}
+
+
+
+
+
+export const v_base32 = v.pipe(
+    trimmed,
+    v.regex(/^[A-Z2-7]+={0,6}$/),
+    v.transform(str => str.replaceAll('=', '')),
+);
+
