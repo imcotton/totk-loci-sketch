@@ -13,6 +13,26 @@ import { catch_refine, trimmed, type inputs } from './common.ts';
 
 
 
+export async function open_Kv (
+
+        path?: string,
+
+) {
+
+    if (   typeof globalThis.Deno === 'object'
+        && typeof globalThis.Deno.openKv === 'function'
+    ) {
+
+        return await Deno.openKv(path);
+
+    }
+
+}
+
+
+
+
+
 export function local ({ entries: { issue, ...rest } }: typeof inputs) {
 
     return v.object({
