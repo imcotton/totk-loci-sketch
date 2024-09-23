@@ -38,7 +38,7 @@ export function app ({ token, secret, kv, store, server_timing }: {
         secret?: string,
         kv?: Deno.Kv,
         server_timing?: boolean,
-        store: Cache,
+        store?: Cache,
 
 }): { fetch (_: Request): Response | Promise<Response> } {
 
@@ -46,7 +46,9 @@ export function app ({ token, secret, kv, store, server_timing }: {
 
     const articles = use_articles({ kv, token });
 
-    return (new_hono(store, server_timing)
+    const mount_assets_to = make_cache(bundle, store);
+
+    return mount_assets_to(new_hono(server_timing)
 
         .get('/', CSP, ctx => try_catch(async function () {
 
@@ -223,9 +225,9 @@ function new_validator_hook (
 
 
 
-function make_cache (it: Iterable<Mount>) {
+function make_cache (it: Iterable<Mount>, store?: Cache) {
 
-    return function (store: Cache, hono: Hono, timeout = 5_000) {
+    return function (hono: Hono, timeout = 5_000) {
 
         return Array.from(it).reduce(function (router, info) {
 
@@ -235,9 +237,9 @@ function make_cache (it: Iterable<Mount>) {
 
                 const key = ctx.req.raw.url;
 
-                const value = await store.match(key);
+                const value = await store?.match(key);
 
-                if (value) {
+                if (value != null) {
                     return value;
                 }
 
@@ -247,7 +249,7 @@ function make_cache (it: Iterable<Mount>) {
                     signal: AbortSignal.timeout(timeout),
                 });
 
-                if (res.ok === true) {
+                if ((store != null) && (res.ok === true)) {
 
                     const headers = new Headers(res.headers);
 
@@ -297,11 +299,9 @@ const try_catch = catch_refine(function (err: unknown) {
 
 
 
-function new_hono (store: Cache, server_timing?: boolean) {
+function new_hono (server_timing?: boolean) {
 
-    const mount = make_cache(bundle);
-
-    const hono = new Hono()
+    return (new Hono()
 
         .use(prettyJSON({ space: 4 }))
 
@@ -334,9 +334,7 @@ function new_hono (store: Cache, server_timing?: boolean) {
 
         </html>))
 
-    ;
-
-    return mount(store, hono);
+    );
 
 }
 
