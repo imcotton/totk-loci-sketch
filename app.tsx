@@ -299,7 +299,7 @@ const try_catch = catch_refine(function (err: unknown) {
 
 
 
-function new_hono (server_timing?: boolean) {
+function new_hono (server_timing = false) {
 
     return (new Hono()
 
