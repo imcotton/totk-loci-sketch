@@ -27,5 +27,5 @@ const server_timing = false;
 
 
 
-export default app({ token, secret, kv, store, server_timing });
+export default app({ kv, store, token, secret, server_timing });
 

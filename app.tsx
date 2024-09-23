@@ -32,13 +32,13 @@ const otp_digit = 6;
 
 
 
-export function app ({ token, secret, kv, store, server_timing }: {
+export function app ({ kv, store, token, secret, server_timing }: {
 
+        kv?: Deno.Kv,
+        store?: Cache,
         token?: string,
         secret?: string,
-        kv?: Deno.Kv,
         server_timing?: boolean,
-        store?: Cache,
 
 }): { fetch (_: Request): Response | Promise<Response> } {
 
