@@ -1,6 +1,6 @@
 import { env } from 'node:process';
 
-import { app } from '../app.tsx';
+import { create_app } from '../app.tsx';
 
 
 
@@ -27,5 +27,5 @@ const server_timing = false;
 
 
 
-export default app({ kv, store, token, secret, server_timing });
+export default await create_app({ kv, store, token, secret, server_timing });
 

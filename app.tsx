@@ -32,7 +32,7 @@ const otp_digit = 6;
 
 
 
-export function app ({ kv, store, token, secret, server_timing }: {
+export async function create_app ({ kv, store, token, secret, server_timing }: {
 
         kv?: Deno.Kv,
         store?: Cache,
@@ -40,7 +40,10 @@ export function app ({ kv, store, token, secret, server_timing }: {
         secret?: string,
         server_timing?: boolean,
 
-}): { fetch (_: Request): Response | Promise<Response> } {
+}): Promise<{ fetch (_: Request): Response | Promise<Response> }> {
+
+    kv ??= await Deno?.openKv?.();
+    store ??= await caches.open('assets-v1');
 
     const guard = u.otp_check(secret);
 
