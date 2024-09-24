@@ -18,7 +18,6 @@ import { main } from './main.ts';
 import { use_articles } from './articles.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle } from './assets.ts';
-import { use_clock } from './clock.ts';
 import * as u from './utils.ts';
 import { inputs, trimmed } from './common.ts';
 
@@ -55,7 +54,7 @@ export async function create_app ({ kv, store, token, secret, server_timing }: {
 
         .get('/', CSP, ctx => u.try_catch(async function () {
 
-            const latest = await articles.load_either(use_clock(ctx));
+            const latest = await articles.load_either(u.use_clock(ctx));
 
             return ctx.render(<div class={ styles.home }>
 

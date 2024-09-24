@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-import type { Clock } from './clock.ts';
+import { type Clock } from './utils.ts';
 import { right, error } from './either.ts';
 
 

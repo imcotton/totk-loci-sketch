@@ -1,4 +1,5 @@
-import { type Hono }     from 'hono';
+import type { Hono, Context } from 'hono';
+import { startTime, endTime } from 'hono/timing';
 import { HTTPException } from 'hono/http-exception';
 
 import { verify } from '@libs/crypto/totp';
@@ -184,4 +185,32 @@ export const v_base32 = v.pipe(
     v.regex(/^[A-Z2-7]+={0,6}$/),
     v.transform(str => str.replaceAll('=', '')),
 );
+
+
+
+
+
+export type Clock = Readonly<ReturnType<typeof use_clock>>;
+
+export function use_clock (ctx: Context) {
+
+    return {
+
+        start (name: string, description?: string) {
+
+            startTime(ctx, name, description);
+
+            return name;
+
+        },
+
+        end (name: string, precision?: number) {
+
+            endTime(ctx, name, precision);
+
+        },
+
+    };
+
+}
 

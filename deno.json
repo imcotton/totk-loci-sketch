@@ -43,7 +43,6 @@
       "./components/*",
       "./common.ts",
       "./utils.ts",
-      "./clock.ts",
       "./either.ts",
       "./articles.ts",
       "./assets.ts",
