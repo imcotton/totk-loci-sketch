@@ -31,7 +31,11 @@ const otp_digit = 6;
 
 
 
-export async function create_app ({ kv, store, token, secret, server_timing }: {
+export async function create_app ({
+
+        kv, store, token, secret, server_timing
+
+}: {
 
         kv?: Deno.Kv,
         store?: Cache,
