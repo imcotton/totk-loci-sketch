@@ -7,7 +7,7 @@
     "@std/encoding": "jsr:@std/encoding@^1.0.3",
     "@libs/crypto": "jsr:@libs/crypto@~1.1.6",
     "@libs/qrcode": "jsr:@libs/qrcode@~1.2.8",
-    "hono": "jsr:@hono/hono@^4.6.1",
+    "hono": "jsr:@hono/hono@^4.6.3",
     "hono/valibot-validator": "./vendor/hono__valibot-validator__0.3.0.ts",
     "strip-indent": "npm:strip-indent@4.0.0",
     "valibot": "jsr:@valibot/valibot@~0.42.0"
