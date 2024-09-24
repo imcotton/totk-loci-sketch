@@ -13,19 +13,7 @@ const {
 
 } = env;
 
-
-
-
-
-const kv = await Deno?.openKv?.();
-
-const store = await caches.open('assets-v1');
-
 const server_timing = false;
 
-
-
-
-
-export default await create_app({ kv, store, token, secret, server_timing });
+export default await create_app({ token, secret, server_timing });
 
