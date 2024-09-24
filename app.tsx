@@ -42,7 +42,7 @@ export async function create_app ({ kv, store, token, secret, server_timing }: {
 }): Promise<{ fetch (_: Request): Response | Promise<Response> }> {
 
     kv ??= await u.open_Kv();
-    store ??= await caches.open('assets-v1');
+    store ??= await u.open_caches('assets-v1');
 
     const guard = u.otp_check(secret);
 

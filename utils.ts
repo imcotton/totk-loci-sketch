@@ -33,6 +33,24 @@ export async function open_Kv (
 
 
 
+export async function open_caches (
+
+        name: string,
+
+) {
+
+    if (typeof globalThis.caches === 'object') {
+
+        return await globalThis.caches.open(name);
+
+    }
+
+}
+
+
+
+
+
 export function local ({ entries: { issue, ...rest } }: typeof inputs) {
 
     return v.object({
