@@ -13,7 +13,6 @@
     "valibot": "jsr:@valibot/valibot@~0.42.0"
   },
   "exports": {
-    "./bin": "./deploy/deno.ts",
     "./app": "./app.tsx",
     "./main": "./main.ts",
     "./make": "./make.ts",
@@ -21,7 +20,7 @@
   },
   "tasks": {
     "verify": "deno publish --dry-run --allow-dirty",
-    "dev": "deno serve --env -E=MATAROA_API_KEY,OTP_SECRET -N=mataroa.blog:443,esm.sh:443 --watch deploy/deno.ts",
+    "dev": "deno serve --env -E=MATAROA_API_KEY,OTP_SECRET -N=mataroa.blog:443,esm.sh:443 --watch mod.ts",
     "post": "./draft.ts"
   },
   "unstable": [
@@ -40,9 +39,9 @@
   "lock": false,
   "publish": {
     "include": [
-      "./deploy/*",
       "./vendor/*",
       "./components/*",
+      "./deploy/deno.ts",
       "./common.ts",
       "./utils.ts",
       "./either.ts",
