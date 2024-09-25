@@ -13,6 +13,7 @@
     "valibot": "jsr:@valibot/valibot@~0.42.0"
   },
   "exports": {
+    "./bin": "./deploy/deno.ts",
     "./app": "./app.tsx",
     "./main": "./main.ts",
     "./make": "./make.ts",
@@ -39,6 +40,7 @@
   "lock": false,
   "publish": {
     "include": [
+      "./deploy/*",
       "./vendor/*",
       "./components/*",
       "./common.ts",
