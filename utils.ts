@@ -13,11 +13,7 @@ import { catch_refine, trimmed, type inputs } from './common.ts';
 
 
 
-export async function open_Kv (
-
-        path?: string,
-
-) {
+export async function open_Kv (path?: string) {
 
     if (   typeof globalThis.Deno === 'object'
         && typeof globalThis.Deno.openKv === 'function'
@@ -33,11 +29,7 @@ export async function open_Kv (
 
 
 
-export async function open_caches (
-
-        name: string,
-
-) {
+export async function open_caches (name: string) {
 
     if (typeof globalThis.caches === 'object') {
 
