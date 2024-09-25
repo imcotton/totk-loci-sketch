@@ -13,6 +13,7 @@
     "valibot": "jsr:@valibot/valibot@~0.42.0"
   },
   "exports": {
+    "./bin": "./bin.ts",
     "./app": "./app.tsx",
     "./main": "./main.ts",
     "./make": "./make.ts",
@@ -41,6 +42,8 @@
     "include": [
       "./vendor/*",
       "./components/*",
+      "./deploy/*",
+      "./bin.ts",
       "./common.ts",
       "./utils.ts",
       "./either.ts",
