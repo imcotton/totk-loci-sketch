@@ -37,11 +37,9 @@ export function use_articles ({
 
     async function load (clock?: Clock) {
 
-        let next: string | undefined;
-
         if (kv) {
 
-            next = clock?.start('kv');
+            const timing_kv = clock?.start('kv');
 
             const result = await kv.getMany([
 
@@ -55,7 +53,9 @@ export function use_articles ({
 
             ]))).then(E.right, E.error);
 
-            next && clock?.end(next);
+            if (timing_kv && clock) {
+                clock.end(timing_kv);
+            }
 
             if (result.type === 'right') {
 
@@ -74,7 +74,7 @@ export function use_articles ({
 
         const url = prefix.concat('/api/posts/');
 
-        next = clock?.start('fetch');
+        const timing_fetch = clock?.start('fetch');
 
         const response = await fetch(url, {
 
@@ -90,7 +90,9 @@ export function use_articles ({
 
         const raw = await response.json();
 
-        next && clock?.end(next);
+        if (timing_fetch && clock) {
+            clock.end(timing_fetch);
+        }
 
         const { draft, published } = parse(raw);
 
