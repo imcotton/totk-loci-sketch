@@ -48,7 +48,7 @@ export function use_articles ({
                 keys.draft.path,
                 keys.published.path,
 
-            ]).then(v.parser(v.strictTuple([
+            ], { consistency: 'eventual' }).then(v.parser(v.strictTuple([
 
                 keys.draft.schema,
                 keys.published.schema,
