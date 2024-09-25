@@ -1,6 +1,6 @@
 import type { Hono, Context } from 'hono';
+import { HTTPException }      from 'hono/http-exception';
 import { startTime, endTime } from 'hono/timing';
-import { HTTPException } from 'hono/http-exception';
 
 import { verify } from '@libs/crypto/totp';
 
