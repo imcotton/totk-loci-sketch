@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 
+import { either as E } from './common.ts';
 import { type Clock } from './utils.ts';
-import { right, error } from './either.ts';
 
 
 
@@ -53,7 +53,7 @@ export function use_articles ({
                 keys.draft.schema,
                 keys.published.schema,
 
-            ]))).then(right, error);
+            ]))).then(E.right, E.error);
 
             next && clock?.end(next);
 
@@ -100,7 +100,7 @@ export function use_articles ({
                 .set(keys.draft.path,         draft, { expireIn })
                 .set(keys.published.path, published, { expireIn })
                 .commit()
-                .catch(error)
+                .catch(E.error)
             ;
 
         }
@@ -117,11 +117,11 @@ export function use_articles ({
 
             try {
 
-                return right(await load(clock));
+                return E.right(await load(clock));
 
             } catch (cause) {
 
-                return error(cause);
+                return E.error(cause);
 
             }
 

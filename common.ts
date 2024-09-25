@@ -1,5 +1,7 @@
 import * as v from 'valibot';
 
+export * as either from './either.ts';
+
 
 
 
