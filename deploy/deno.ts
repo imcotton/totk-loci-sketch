@@ -15,5 +15,13 @@ const {
 
 const server_timing = false;
 
-export default await create_app({ token, secret, server_timing });
+const app: Deno.ServeDefaultExport = await create_app({
+
+    token,
+    secret,
+    server_timing,
+
+});
+
+export default app;
 
