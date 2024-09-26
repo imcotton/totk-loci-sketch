@@ -9,6 +9,8 @@ import * as v from 'valibot';
 import { type Mount } from './assets.ts';
 import { catch_refine, trimmed, type inputs } from './common.ts';
 
+export { otpsecret } from './otpsec.ts';
+
 
 
 

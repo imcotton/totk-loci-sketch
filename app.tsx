@@ -10,8 +10,6 @@ import { timing }        from 'hono/timing';
 import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
-import { otpsecret } from '@libs/crypto/totp';
-
 import * as v from 'valibot';
 
 import { main } from './main.ts';
@@ -146,7 +144,7 @@ export async function create_app ({
             ctx => u.try_catch(async function () {
 
                 const {
-                    secret = otpsecret(),
+                    secret = u.otpsecret(32),
                     issuer = new URL(ctx.req.url).hostname,
                     account = 'admin',
                     otp: token,
