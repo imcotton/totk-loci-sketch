@@ -1,8 +1,4 @@
-import { argv } from 'node:process';
-
 import { encodeBase32 } from '@std/encoding/base32';
-
-import * as v from 'valibot';
 
 const { crypto: webcrypto } = globalThis;
 
@@ -24,12 +20,18 @@ export function otpsecret (n = 20): string {
 
 if (import.meta.main) {
 
+    const { argv } = await import('node:process');
+
     const [ size ] = argv.slice(2);
+
+    const v = await import('valibot');
 
     const n = v.parse(v.optional(v.pipe(
         v.string(),
+        v.nonEmpty(),
         v.digits(),
         v.transform(Number.parseInt),
+        v.safeInteger(),
     )), size);
 
     console.log(otpsecret(n));
