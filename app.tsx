@@ -258,6 +258,10 @@ const CSP = secureHeaders({
         styleSrc: [   `'self'`, `'unsafe-inline'` ],
         imgSrc: [     `'self'`, `data:` ],
 
+        frameAncestors: [
+            'https://dash.deno.com',  // Deno Deploy Playground
+        ],
+
     },
 
 });
