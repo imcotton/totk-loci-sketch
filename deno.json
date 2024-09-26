@@ -13,6 +13,7 @@
     "valibot": "jsr:@valibot/valibot@~0.42.0"
   },
   "exports": {
+    "./optsec": "./optsec.ts",
     "./app": "./app.tsx",
     "./main": "./main.ts",
     "./make": "./make.ts",
@@ -44,6 +45,7 @@
       "./deploy/deno.ts",
       "./common.ts",
       "./utils.ts",
+      "./optsec.ts",
       "./either.ts",
       "./articles.ts",
       "./assets.ts",
