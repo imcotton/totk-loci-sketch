@@ -257,8 +257,11 @@ const CSP = secureHeaders({
         defaultSrc: [ `'none'` ],
         styleSrc: [   `'self'`, `'unsafe-inline'` ],
         imgSrc: [     `'self'`, `data:` ],
+        frameAncestors: [ 'https://dash.deno.com' ],
 
     },
+
+    xFrameOptions: false,
 
 });
 
