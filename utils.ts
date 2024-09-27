@@ -235,7 +235,7 @@ function pad_chunk (by: number, fill: string) {
         const length = str.length;
         const left = length % by;
 
-        return left === 0 ? str : str.padEnd(length + by - left, fill);
+        return left < 1 ? str : str.concat(fill.repeat(by - left));
 
     };
 
