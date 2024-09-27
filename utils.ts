@@ -222,6 +222,23 @@ export const v_base32 = v.pipe(
 
 
 
+function pad_chunk (by: number, fill: string) {
+
+    return function (str: string) {
+
+        const length = str.length;
+        const left = length % by;
+
+        return left === 0 ? str : str.padEnd(length + by - left, fill);
+
+    };
+
+}
+
+
+
+
+
 export type Clock = Readonly<ReturnType<typeof use_clock>>;
 
 export function use_clock (ctx: Context) {
