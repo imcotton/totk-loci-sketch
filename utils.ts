@@ -145,7 +145,9 @@ export function make_cache (it: Iterable<Mount>, store?: Cache) {
 
 
 
-export async function optional_verify (secret: string, token?: string) {
+export async function optional_verify (sec: string, token?: string) {
+
+    const secret = pad_base32(sec);
 
     if (typeof token === 'string' && token.length > 0) {
 
@@ -159,9 +161,11 @@ export async function optional_verify (secret: string, token?: string) {
 
 
 
-export function otp_check (secret?: string) {
+export function otp_check (sec?: string) {
 
-    if (secret != null) {
+    if (sec != null) {
+
+        const secret = pad_base32(sec);
 
         return async function (token: string) {
 
@@ -221,6 +225,8 @@ export const v_base32 = v.pipe(
 
 
 
+
+const pad_base32 = pad_chunk(8, '=');
 
 function pad_chunk (by: number, fill: string) {
 
