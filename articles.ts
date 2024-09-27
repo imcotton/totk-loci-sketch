@@ -53,7 +53,7 @@ export function use_articles ({
 
             ]))).then(E.right, E.error);
 
-            if (timing_kv && clock) {
+            if (clock &&  timing_kv) {
                 clock.end(timing_kv);
             }
 
@@ -90,7 +90,7 @@ export function use_articles ({
 
         const raw = await response.json();
 
-        if (timing_fetch && clock) {
+        if (clock &&  timing_fetch) {
             clock.end(timing_fetch);
         }
 
