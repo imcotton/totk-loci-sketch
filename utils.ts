@@ -7,7 +7,7 @@ import { verify } from '@libs/crypto/totp';
 import * as v from 'valibot';
 
 import { type Mount } from './assets.ts';
-import { catch_refine, trimmed, type inputs } from './common.ts';
+import { catch_refine, type inputs } from './common.ts';
 
 export { otpsecret } from './otpsec.ts';
 
@@ -209,35 +209,6 @@ export function mk_otp_schema (
         v.digits(),
         v.checkAsync(verify, 'OTP verify failed'),
     ));
-
-}
-
-
-
-
-
-export const v_base32 = v.pipe(
-    trimmed,
-    v.regex(/^[A-Z2-7]+={0,6}$/),
-    v.transform(str => str.replaceAll('=', '')),
-);
-
-
-
-
-
-const pad_base32 = pad_chunk(8, '=');
-
-function pad_chunk (by: number, fill: string) {
-
-    return function (str: string) {
-
-        const length = str.length;
-        const left = length % by;
-
-        return left < 1 ? str : str.concat(fill.repeat(by - left));
-
-    };
 
 }
 
