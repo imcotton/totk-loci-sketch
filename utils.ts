@@ -226,7 +226,7 @@ export const v_base32 = v.pipe(
 
 
 
-const pad_base32 = pad_chunk(8, '=');
+export const pad_base32 = pad_chunk(8, '=');
 
 function pad_chunk (by: number, fill: string) {
 
