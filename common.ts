@@ -6,6 +6,24 @@ export * as either from './either.ts';
 
 
 
+// nmap :: (a -> b) -> a? -> b?
+export function nmap <A, B> (
+
+        f: (a: A) => B,
+        a: A | undefined | null,
+
+): B | undefined {
+
+    if (a != null) {
+        return f(a);
+    }
+
+}
+
+
+
+
+
 export function catch_refine <E> (refine: (err: unknown) => E) {
 
     return async function <T> (task: () => Promise<T>) {
