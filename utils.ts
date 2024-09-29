@@ -7,7 +7,7 @@ import { verify } from '@libs/crypto/totp';
 import * as v from 'valibot';
 
 import { type Mount } from './assets.ts';
-import { catch_refine, type inputs } from './common.ts';
+import { catch_refine, text_encode, type inputs } from './common.ts';
 
 export { otpsecret } from './otpsec.ts';
 
@@ -20,6 +20,29 @@ const { crypto: webcrypto } = globalThis;
 export function UUIDv4 (): string {
 
     return webcrypto.randomUUID();
+
+}
+
+
+
+
+
+export const hash_seed = sample(function (ab) {
+
+    return new Uint8Array(ab).subarray(0, 24);
+
+});
+
+function sample <T> (refine: (_: ArrayBuffer) => T) {
+
+    return async function (secret: string) {
+
+        const data = text_encode(secret);
+        const ab = await webcrypto.subtle.digest('SHA-256', data);
+
+        return refine(ab);
+
+    };
 
 }
 
