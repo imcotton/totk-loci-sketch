@@ -2,8 +2,6 @@ import type { Hono, Context } from 'hono';
 import { HTTPException }      from 'hono/http-exception';
 import { startTime, endTime } from 'hono/timing';
 
-import { verify } from '@libs/crypto/totp';
-
 import * as v from 'valibot';
 
 import { type Mount } from './assets.ts';
@@ -175,53 +173,6 @@ export function make_cache (it: Iterable<Mount>, store?: Cache) {
     };
 
 }
-
-
-
-
-
-export async function optional_verify (sec: string, token?: string) {
-
-    const secret = pad_base32(sec);
-
-    if (typeof token === 'string' && token.length > 0) {
-
-        return true === await verify({ secret, token });
-
-    }
-
-}
-
-
-
-
-
-export function otp_check (sec?: string) {
-
-    if (sec != null) {
-
-        const secret = pad_base32(sec);
-
-        return async function (token: string) {
-
-            try {
-
-                return true === await verify({ token, secret });
-
-            } catch (err) {
-
-                console.error(err);
-
-                return false;
-
-            }
-
-        };
-
-    }
-
-}
-
 
 
 

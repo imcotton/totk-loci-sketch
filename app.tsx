@@ -14,16 +14,19 @@ import * as v from 'valibot';
 
 import { main } from './main.ts';
 import { use_articles } from './articles.ts';
+import { make_totp } from './otp.ts';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
 import { hero_image, pico_css, bundle } from './assets.ts';
 import * as u from './utils.ts';
-import { inputs, trimmed } from './common.ts';
+import { inputs, trimmed, nmap } from './common.ts';
 
 
 
 
 
 const otp_digit = 6;
+
+const { verify, setup_uri } = make_totp(otp_digit);
 
 
 
@@ -46,7 +49,11 @@ export async function create_app ({
     kv ??= await u.open_Kv();
     store ??= await u.open_caches('assets-v1');
 
-    const guard = u.otp_check(secret);
+    const guard = nmap(str => function (otp: string) {
+
+        return u.hash_seed(str).then(verify(otp));
+
+    }, secret);
 
     const articles = use_articles({ kv, token });
 
@@ -135,7 +142,7 @@ export async function create_app ({
         .on([ 'GET', 'POST' ], '/setup', CSP,
 
             vValidator('form', v.partial(v.object({
-                secret: u.v_base32,
+                secret: trimmed,
                 issuer: trimmed,
                 account: trimmed,
                 otp: trimmed,
@@ -144,15 +151,17 @@ export async function create_app ({
             ctx => u.try_catch(async function () {
 
                 const {
-                    secret = u.otpsecret(32),
+                    secret = u.UUIDv4(),
                     issuer = new URL(ctx.req.url).hostname,
                     account = 'admin',
-                    otp: token,
+                    otp,
                 } = ctx.req.valid('form');
 
-                const correct = await u.optional_verify(secret, token);
+                const entropy = await u.hash_seed(secret);
+                const href = setup_uri(entropy, { issuer, account });
+                const correct = nmap(verify, otp)?.(entropy);
 
-                const opts = { secret, issuer, account, correct };
+                const opts = { secret, issuer, account, href, correct };
 
                 return ctx.render(<OtpSetup action="/setup" { ...opts } />);
 
