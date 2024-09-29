@@ -5,23 +5,21 @@ import { raw } from 'hono/html';
 import { css } from 'hono/css';
 
 import { qrcode } from '@libs/qrcode';
-import { otpauth } from '@libs/crypto/totp';
 
 
 
 
 
-export function OtpSetup ({ action, secret, issuer, account, correct }: {
+export function OtpSetup ({ action, secret, issuer, account, href, correct }: {
 
         action: string,
         secret: string,
         issuer: string,
         account: string,
+        href: string,
         correct?: boolean,
 
 }) {
-
-    const { href } = otpauth({ secret, issuer, account });
 
     const svg = qrcode(href, { output: 'svg', border: 2 });
 
