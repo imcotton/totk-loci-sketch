@@ -11,6 +11,18 @@ import { catch_refine, trimmed, type inputs } from './common.ts';
 
 export { otpsecret } from './otpsec.ts';
 
+const { crypto: webcrypto } = globalThis;
+
+
+
+
+
+export function UUIDv4 (): string {
+
+    return webcrypto.randomUUID();
+
+}
+
 
 
 
