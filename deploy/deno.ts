@@ -9,7 +9,7 @@ import { create_app } from '../app.tsx';
 const {
 
         MATAROA_API_KEY: token,
-             OTP_SECRET: secret,
+             OTP_SECRET: otp_secret,
 
 } = env;
 
@@ -18,7 +18,7 @@ const server_timing = false;
 const app: Deno.ServeDefaultExport = await create_app({
 
     token,
-    secret,
+    otp_secret,
     server_timing,
 
 });
