@@ -34,14 +34,14 @@ const { verify, setup_uri } = make_totp(otp_digit);
 
 export async function create_app ({
 
-        kv, store, token, secret, server_timing
+        kv, store, token, otp_secret, server_timing
 
 }: {
 
         kv?: Deno.Kv,
         store?: Cache,
         token?: string,
-        secret?: string,
+        otp_secret?: string,
         server_timing?: boolean,
 
 }): Promise<{ fetch (_: Request): Response | Promise<Response> }> {
@@ -49,7 +49,7 @@ export async function create_app ({
     kv ??= await u.open_Kv();
     store ??= await u.open_caches('assets-v1');
 
-    const guard = shield_by_optional(secret);
+    const guard = shield_by_optional(otp_secret);
 
     const articles = use_articles({ kv, token });
 
