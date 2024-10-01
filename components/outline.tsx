@@ -42,7 +42,7 @@ export const Outline = memo(function ({ draft, published }: Articles) {
 
             <ul>
 
-                { published.slice(0, 5).map(item => <li>
+                { published.slice(0, 3).map(item => <li>
 
                     <strong>
                         <a href={ item.url } target="_blank">
