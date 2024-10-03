@@ -78,7 +78,7 @@ export async function open_caches (name: string) {
 
 
 
-export function local ({ entries: { issue, ...rest } }: typeof inputs) {
+export function local ({ issue, ...rest }: typeof inputs) {
 
     return v.object({
 

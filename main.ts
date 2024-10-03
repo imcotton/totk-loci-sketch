@@ -50,7 +50,7 @@ export async function main (raw: Inputs, {
 
     const url = await v.parseAsync(v.pipeAsync(
 
-        inputs,
+        v.object(inputs),
 
         v.transformAsync(async function ({ image, ...rest }) {
 
