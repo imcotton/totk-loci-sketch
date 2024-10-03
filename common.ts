@@ -58,7 +58,7 @@ const digits = v.pipe(trimmed, v.regex(/^-?\d{4}$/));
 
 
 
-export const inputs = v.object({
+export const inputs = {
 
     issue: v.pipe(v.number(), v.safeInteger()),
     title: trimmed,
@@ -66,7 +66,7 @@ export const inputs = v.object({
     image: trimmed,
     coordinates: v.pipe(v.tuple([ digits, digits, digits ]), v.readonly()),
 
-});
+};
 
 
 
