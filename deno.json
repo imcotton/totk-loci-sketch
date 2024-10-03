@@ -5,6 +5,7 @@
   "license": "MIT",
   "imports": {
     "@std/encoding": "jsr:@std/encoding@^1.0.3",
+    "@std/uuid": "jsr:@std/uuid@1",
     "@libs/qrcode": "jsr:@libs/qrcode@~1.2.8",
     "@oslojs/otp": "npm:@oslojs/otp@~1.0.0",
     "hono": "jsr:@hono/hono@^4.6.3",
