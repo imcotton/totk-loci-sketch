@@ -12,12 +12,12 @@ import { vValidator }    from 'hono/valibot-validator';
 
 import * as v from 'valibot';
 
-import { main } from './main.ts';
 import { make_totp } from './otp.ts';
 import { use_articles } from './articles.ts';
 import { hero_image, pico_css, bundle } from './assets.ts';
+import { Create } from './components/create.tsx';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
-import { inputs, trimmed, nmap } from './common.ts';
+import { inputs, trimmed, nmap, assert } from './common.ts';
 import * as u from './utils.ts';
 
 
@@ -102,34 +102,16 @@ export async function create_app ({
 
             ctx => u.try_catch(async function () {
 
-                const { publish, ...rest } = ctx.req.valid('form');
+                assert(token?.length, 'API token is missing or invalid');
 
-                const { promise, resolve } = Promise.withResolvers<string>();
+                const { publish, ...data } = ctx.req.valid('form');
 
-                const [ url ] = await Promise.all([
+                return ctx.render(<Create { ...{ data, token } }
 
-                    promise,
+                    draft={ publish !== true }
+                    update={ articles.obsolete }
 
-                    main(rest, {
-                        token,
-                        print: resolve,
-                        draft: publish !== true,
-                    }),
-
-                    articles.obsolete(),
-
-                ]);
-
-                return ctx.render(
-                    <ul>
-                        <li>
-                            <a href="/">back</a>
-                        </li>
-                        <li>
-                            go to <a href={ url } target="_blank">{ url }</a>
-                        </li>
-                    </ul>
-                );
+                />);
 
             }),
 
