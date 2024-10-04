@@ -30,6 +30,18 @@ export function nmap <A, B> (
 
 
 
+export function assert (expr: unknown, msg = 'unknown'): asserts expr {
+
+    if (!expr) {
+        throw new Error(msg);
+    }
+
+}
+
+
+
+
+
 export function catch_refine <E> (refine: (err: unknown) => E) {
 
     return async function <T> (task: () => Promise<T>) {
