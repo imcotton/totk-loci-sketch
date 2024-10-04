@@ -6,6 +6,12 @@ export * as either from './either.ts';
 
 
 
+export type Predicate <T> = (_: T) => boolean;
+
+
+
+
+
 // nmap :: (a -> b) -> a? -> b?
 export function nmap <A, B> (
 
