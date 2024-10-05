@@ -17,7 +17,8 @@ import { use_articles } from './articles.ts';
 import { hero_image, pico_css, bundle } from './assets.ts';
 import { Create } from './components/create.tsx';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
-import { inputs, trimmed, nmap, assert } from './common.ts';
+import type { Predicate } from './common.ts';
+import { inputs, trimmed, nmap, assert, lookup } from './common.ts';
 import * as u from './utils.ts';
 
 
@@ -34,7 +35,7 @@ const { verify, setup_uri } = make_totp(otp_digit);
 
 export async function create_app ({
 
-        kv, store, token, otp_secret, server_timing
+        kv, store, token, otp_secret, server_timing, authorized
 
 }: {
 
@@ -44,12 +45,18 @@ export async function create_app ({
         otp_secret?: string,
         server_timing?: boolean,
 
+        authorized?: (
+            f: (xs: Iterable<string>) => Predicate<string>,
+        ) => Predicate<string>,
+
 }): Promise<{ fetch (_: Request): Response | Promise<Response> }> {
 
     kv ??= await u.open_Kv();
     store ??= await u.open_caches('assets-v1');
 
     const guard = shield_by_optional(otp_secret);
+
+    const public_keys = authorized?.(lookup);
 
     const articles = use_articles({ kv, token });
 
@@ -61,9 +68,11 @@ export async function create_app ({
 
             const latest = await articles.load_either(u.use_clock(ctx));
 
+            const post = public_keys ? '/new-signing' : '/new';
+
             return ctx.render(<div class={ styles.home }>
 
-                <DraftForm action="/new?pretty"
+                <DraftForm action={ `${ post }?pretty` }
 
                     digit={ otp_digit }
                     need_otp={ guard != null }
@@ -109,6 +118,88 @@ export async function create_app ({
                 return ctx.render(<Create { ...{ data, token } }
 
                     draft={ publish !== true }
+                    update={ articles.obsolete }
+
+                />);
+
+            }),
+
+        )
+
+        .post('/new-signing',
+
+            vValidator('form', v.objectAsync({
+                otp: u.mk_otp_schema(otp_digit, guard),
+            })),
+
+            vValidator('form', u.local(inputs), new_validator_hook),
+
+            ctx => u.try_catch(async function () {
+
+                assert(kv, 'Deno.Kv is unavailable');
+
+                const state = u.UUIDv4();
+                const challenge = u.UUIDv4();
+
+                { // kv
+
+                    const { publish, ...data } = ctx.req.valid('form');
+
+                    const draft = publish !== true;
+
+                    const key = u.stash_by(state);
+
+                    const expireIn = u.mins(2);
+
+                    u.okay(await kv.atomic()
+                        .check({ key, versionstamp: null })
+                        .set(key, { data, draft, challenge }, { expireIn })
+                        .commit()
+                    );
+
+                }
+
+                const { origin, href }
+                = new URL('/new-signing-back', ctx.req.url);
+
+                const client_id = await u.uuid_v5_url(origin);
+
+                const signing_url = u.make_signing_url({
+                    state,
+                    challenge,
+                    client_id,
+                    redirect_uri: href,
+                    response_mode: 'body',
+                });
+
+                return ctx.redirect(signing_url);
+
+            }),
+
+        )
+
+        .post('/new-signing-back',
+
+            vValidator('form', u.signing_back),
+
+            ctx => u.try_catch(async function () {
+
+                assert(kv, 'Deno.Kv is unavailable');
+                assert(token?.length, 'API token is missing or invalid');
+
+                const { fingerprint, state, ...param }
+                = ctx.req.valid('form');
+
+                assert(public_keys?.(fingerprint), 'unauthorized signing');
+
+                const { data, draft } = await kv.get(
+
+                    u.stash_by(state)
+
+                ).then(u.evaluate(param));
+
+                return ctx.render(<Create { ...{ data, token, draft } }
+
                     update={ articles.obsolete }
 
                 />);
