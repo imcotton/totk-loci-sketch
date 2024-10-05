@@ -12,6 +12,18 @@ export type Predicate <T> = (_: T) => boolean;
 
 
 
+export function lookup <T> (xs: Iterable<T>): Predicate<T> {
+
+    const table = new Set(xs);
+
+    return x => table.has(x);
+
+}
+
+
+
+
+
 // nmap :: (a -> b) -> a? -> b?
 export function nmap <A, B> (
 
