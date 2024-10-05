@@ -2,10 +2,16 @@ import type { Hono, Context } from 'hono';
 import { HTTPException }      from 'hono/http-exception';
 import { startTime, endTime } from 'hono/timing';
 
+import * as b64 from '@std/encoding/base64';
+import * as hex from '@std/encoding/hex';
+
+import { generate }      from '@std/uuid/v5';
+import { NAMESPACE_URL } from '@std/uuid/constants';
+
 import * as v from 'valibot';
 
 import { type Mount } from './assets.ts';
-import { catch_refine, text_encode, type inputs } from './common.ts';
+import { catch_refine, text_encode, inputs } from './common.ts';
 
 export { otpsecret } from './otpsec.ts';
 
@@ -195,6 +201,254 @@ export function mk_otp_schema (
         v.digits(),
         v.checkAsync(verify, 'OTP verify failed'),
     ));
+
+}
+
+
+
+
+
+export const okay = v.parser(v.object({ ok: v.literal(true) }));
+
+
+
+
+
+export function mins (n: number) {
+
+    return 1000 * 60 * n;
+
+}
+
+
+
+
+
+export function stash_by <const T extends string[]> (...args: T) {
+
+    return [ 'stash', ...args ] as const;
+
+}
+
+
+
+
+
+export function uuid_v5_url (origin: string) {
+
+    return generate(NAMESPACE_URL, text_encode(origin));
+
+}
+
+
+
+
+
+export function make_signing_url ({
+
+        site = 'https://sign-poc.js.org',
+        path = '/auth',
+        ...rest
+
+}: {
+
+        state: string,
+        challenge: string,
+        client_id: string,
+        redirect_uri: string,
+        response_mode: 'body' | 'query' | 'fragment',
+        site?: string,
+        path?: string,
+
+}) {
+
+    const params = new URLSearchParams(rest).toString();
+
+    return site.concat(path, '#', params);
+
+}
+
+
+
+
+
+export const signing_back = v.pipeAsync(
+
+    v.object({
+
+        pub: v.pipe(
+            v.string(),
+            v.hexadecimal(),
+            v.transform(hex.decodeHex),
+        ),
+
+        signature: v.pipe(
+            v.string(),
+            v.hexadecimal(),
+            v.transform(hex.decodeHex),
+        ),
+
+        state: v.pipe(v.string(), v.uuid()),
+
+        timestamp: v.pipe(
+            v.string(),
+            v.isoTimestamp(),
+            v.check(within(mins(5)), 'outdated signing timestamp'),
+        ),
+
+    }),
+
+    v.transformAsync(async function ({ pub, ...rest }) {
+
+        const fingerprint = await mk_fingerprint(pub);
+
+        return { ...rest, pub, fingerprint };
+
+    }),
+
+);
+
+
+
+
+
+function within (ms: number) {
+
+    return function <T extends number | string | Date> (value: NoInfer<T>) {
+
+        const delta = Date.now() - new Date(value).valueOf();
+
+        return delta < ms;
+
+    };
+
+}
+
+
+
+
+
+async function mk_fingerprint (source: BufferSource) {
+
+    const hash = await webcrypto.subtle.digest('SHA-256', source);
+    const base64 = b64.encodeBase64(hash).replaceAll(/=+$/g, '');
+
+    return 'SHA256:'.concat(base64);
+
+}
+
+
+
+
+
+const kv_entry_stash = v.object({
+
+    key: v.array(v.string()),
+
+    value: v.object({
+        data: v.object(inputs),
+        draft: v.boolean(),
+        challenge: v.string(),
+    }),
+
+    versionstamp: v.string(),
+
+}, 'stash entry is missing');
+
+
+
+
+
+export function evaluate <
+
+    T extends v.InferOutput<typeof signing_back>
+
+> ({
+            pub  ,  signature  ,  timestamp
+}: Pick<T, 'pub' | 'signature' | 'timestamp'>) {
+
+    return v.parserAsync(v.pipeAsync(
+
+        kv_entry_stash,
+
+        v.checkAsync(function ({ value: { challenge } }) {
+
+            return verify({ pub, signature, timestamp, challenge });
+
+        }),
+
+        v.transform(({ value }) => value),
+
+    ), { abortEarly: true, abortPipeEarly: true });
+
+}
+
+
+
+
+
+async function verify ({ timestamp, challenge, signature, pub }: {
+
+        timestamp: string,
+        challenge: string,
+        signature: BufferSource,
+        pub: BufferSource,
+
+}) {
+
+    const sample = await HMAC_SHA256({
+            key: text_encode(timestamp),
+        message: text_encode(challenge),
+    });
+
+    return EdDSA({ pub, sample, signature });
+
+}
+
+
+
+
+
+async function HMAC_SHA256 ({ key, message }: {
+
+        key: BufferSource,
+        message: BufferSource,
+
+}) {
+
+    const name = 'HMAC';
+
+    const crypto_key = await webcrypto.subtle.importKey(
+        'raw',
+        key,
+        { name, hash: 'SHA-256' },
+        false,
+        [ 'sign', 'verify' ],
+    );
+
+    return webcrypto.subtle.sign(name, crypto_key, message);
+
+}
+
+
+
+
+
+async function EdDSA ({
+
+           signature  ,  sample  ,  pub
+}: Record<'signature' | 'sample' | 'pub', BufferSource>) {
+
+    const algo = {
+              name: 'Ed25519',
+        namedCurve: 'Ed25519',
+    } as const;
+
+    const key = await webcrypto.subtle.importKey(
+        'raw', pub, algo, false, [ 'verify' ]
+    );
+
+    return webcrypto.subtle.verify(algo, key, signature, sample);
 
 }
 
