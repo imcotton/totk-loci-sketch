@@ -12,6 +12,16 @@ export type Predicate <T> = (_: T) => boolean;
 
 
 
+export function is_fn (fn: unknown): fn is Function {
+
+    return typeof fn === 'function';
+
+}
+
+
+
+
+
 export function lookup <T> (xs: Iterable<T>): Predicate<T> {
 
     const table = new Set(xs);
