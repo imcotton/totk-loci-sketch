@@ -13,13 +13,11 @@ const {
 
 } = env;
 
-const server_timing = false;
-
 const app: Deno.ServeDefaultExport = await create_app({
 
     token,
     otp_secret,
-    server_timing,
+    server_timing: false,
 
 });
 
