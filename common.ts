@@ -64,6 +64,16 @@ export function assert (expr: unknown, msg = 'unknown'): asserts expr {
 
 
 
+export function mins (n: number) {
+
+    return 1000 * 60 * n;
+
+}
+
+
+
+
+
 export function catch_refine <E> (refine: (err: unknown) => E) {
 
     return async function <T> (task: () => Promise<T>) {
