@@ -7,7 +7,7 @@
     "@std/async": "jsr:@std/async@1",
     "@std/encoding": "jsr:@std/encoding@1",
     "@std/uuid": "jsr:@std/uuid@1",
-    "@libs/qrcode": "jsr:@libs/qrcode@~1.2.8",
+    "@libs/qrcode": "jsr:@libs/qrcode@~2.0.0",
     "@oslojs/otp": "npm:@oslojs/otp@~1.0.0",
     "hono": "jsr:@hono/hono@^4.6.3",
     "hono/valibot-validator": "./vendor/hono__valibot-validator__0.3.0.ts",
