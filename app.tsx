@@ -17,7 +17,9 @@ import { use_articles } from './articles.ts';
 import { hero_image, pico_css, bundle } from './assets.ts';
 import { Create } from './components/create.tsx';
 import { DraftForm, OtpSetup, Outline } from './components/index.ts';
-import { inputs, trimmed, nmap, assert } from './common.ts';
+import type { Predicate } from './common.ts';
+import { inputs, trimmed, nmap, assert, lookup, is_fn, mins
+} from './common.ts';
 import * as u from './utils.ts';
 
 
@@ -34,14 +36,22 @@ const { verify, setup_uri } = make_totp(otp_digit);
 
 export async function create_app ({
 
-        kv, store, token, otp_secret, server_timing
+        kv, store,
+        token, otp_secret,
+        authorized, signing_site,
+        server_timing,
 
 }: {
 
         kv?: Deno.Kv,
         store?: Cache,
+
         token?: string,
         otp_secret?: string,
+
+        authorized?: Iterable<string> | Predicate<string>,
+        signing_site?: string,
+
         server_timing?: boolean,
 
 }): Promise<{ fetch (_: Request): Response | Promise<Response> }> {
@@ -50,6 +60,8 @@ export async function create_app ({
     store ??= await u.open_caches('assets-v1');
 
     const guard = shield_by_optional(otp_secret);
+
+    const public_keys = nmap(f => is_fn(f) ? f : lookup(f), authorized);
 
     const articles = use_articles({ kv, token });
 
@@ -61,9 +73,11 @@ export async function create_app ({
 
             const latest = await articles.load_either(u.use_clock(ctx));
 
+            const post = public_keys ? '/stage' : '/new';
+
             return ctx.render(<div class={ styles.home }>
 
-                <DraftForm action="/new?pretty"
+                <DraftForm action={ post.concat('?pretty') }
 
                     digit={ otp_digit }
                     need_otp={ guard != null }
@@ -109,6 +123,92 @@ export async function create_app ({
                 return ctx.render(<Create { ...{ data, token } }
 
                     draft={ publish !== true }
+                    update={ articles.obsolete }
+
+                />);
+
+            }),
+
+        )
+
+        .post('/stage',
+
+            vValidator('form', v.objectAsync({
+                otp: u.mk_otp_schema(otp_digit, guard),
+            })),
+
+            vValidator('form', u.local(inputs), new_validator_hook),
+
+            ctx => u.try_catch(async function () {
+
+                assert(kv, 'Deno.Kv is unavailable');
+
+                const state = u.UUIDv4();
+                const challenge = u.UUIDv4();
+
+                { // kv
+
+                    const key = u.stash_by(state);
+                    const expireIn = mins(2);
+
+                    const { publish, ...data } = ctx.req.valid('form');
+                    const draft = publish !== true;
+
+                    u.okay(await kv.atomic()
+                        .check({ key, versionstamp: null })
+                        .set(key, { data, draft, challenge }, { expireIn })
+                        .commit()
+                    );
+
+                }
+
+                const { origin, href } = new URL('/back-stage', ctx.req.url);
+
+                const client_id = await u.uuid_v5_url(origin);
+
+                const signing_url = u.compose_signing_url({
+                    state,
+                    challenge,
+                    client_id,
+                    site: signing_site,
+                    redirect_uri: href,
+                    response_mode: 'body',
+                });
+
+                return ctx.redirect(signing_url);
+
+            }),
+
+        )
+
+        .post('/back-stage',
+
+            vValidator('form', u.signing_back),
+
+            ctx => u.try_catch(async function () {
+
+                assert(kv, 'Deno.Kv is unavailable');
+                assert(token?.length, 'API token is missing or invalid');
+
+                const { fingerprint, state, ...param } = ctx.req.valid('form');
+
+                if (public_keys?.(fingerprint) !== true) {
+
+                    await u.timing_bomb({ // Side-Channel resistance
+                        till: Math.random() * 500,
+                        note: 'unauthorized signing',
+                    });
+
+                }
+
+                const { data, draft } = await kv.get(
+
+                    u.stash_by(state)
+
+                ).then(u.evaluate(param));
+
+                return ctx.render(<Create { ...{ data, token, draft } }
+
                     update={ articles.obsolete }
 
                 />);
