@@ -121,7 +121,7 @@ export const DraftForm = memo(function ({ action, digit, need_otp }: {
                 }
 
                 <small>
-                    <a href="/setup">setup OTP</a>
+                    <a href="/setup-otp">setup <strong>OTP</strong></a>
                 </small>
 
             </footer>
