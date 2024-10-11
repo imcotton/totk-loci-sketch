@@ -217,7 +217,7 @@ export async function create_app ({
 
         )
 
-        .on([ 'GET', 'POST' ], '/setup', CSP,
+        .on([ 'GET', 'POST' ], '/setup-otp', CSP,
 
             vValidator('form', v.partial(v.object({
                 secret: trimmed,
