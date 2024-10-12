@@ -34,6 +34,22 @@ export function UUIDv4 (): string {
 
 
 
+export const wrap_by_quotes = wrap(`'`);
+
+export function wrap (open: string, close = open) {
+
+    return function (str: string): string {
+
+        return open.concat(str, close);
+
+    };
+
+}
+
+
+
+
+
 export const hash_seed = sample(function (ab) {
 
     return new Uint8Array(ab).subarray(0, 24);
