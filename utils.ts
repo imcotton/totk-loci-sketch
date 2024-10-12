@@ -1,4 +1,4 @@
-import type { Hono, Context } from 'hono';
+import type { Hono, Context, Env } from 'hono';
 import { HTTPException }      from 'hono/http-exception';
 import { startTime, endTime } from 'hono/timing';
 
@@ -132,7 +132,7 @@ export const try_catch = catch_refine(function (err: unknown) {
 
 export function make_cache (it: Iterable<Mount>, store?: Cache) {
 
-    return function (hono: Hono, timeout = 5_000) {
+    return function <E extends Env> (hono: Hono<E>, timeout = 5_000) {
 
         return Array.from(it).reduce(function (router, info) {
 
