@@ -4,6 +4,7 @@ import { startTime, endTime } from 'hono/timing';
 
 import { delay } from '@std/async/delay';
 
+import * as b58 from '@std/encoding/base58';
 import * as b64 from '@std/encoding/base64';
 import * as hex from '@std/encoding/hex';
 
@@ -458,6 +459,29 @@ async function HMAC_SHA256 ({ key, message }: {
     );
 
     return webcrypto.subtle.sign(name, crypto_key, message);
+
+}
+
+
+
+
+
+export async function calc_integrity (content: string, {
+
+        algo = 'SHA-256' as 'SHA-256' | 'SHA-384' | 'SHA-512',
+        size = 12,
+
+} = {}) {
+
+    const ab = await webcrypto.subtle.digest(algo, text_encode(content));
+
+    const checksum = b58.encodeBase58(ab).slice(0, size);
+
+    const prefix = algo.toLowerCase().replace('-', '');
+
+    const integrity = prefix.concat('-', b64.encodeBase64(ab));
+
+    return { checksum, integrity };
 
 }
 
