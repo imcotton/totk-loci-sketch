@@ -7,7 +7,6 @@ import { jsx }           from 'hono/jsx';
 import { jsxRenderer }   from 'hono/jsx-renderer';
 import { prettyJSON }    from 'hono/pretty-json';
 import { timing }        from 'hono/timing';
-import { secureHeaders } from 'hono/secure-headers';
 import { vValidator }    from 'hono/valibot-validator';
 
 import * as v from 'valibot';
@@ -69,7 +68,7 @@ export async function create_app ({
 
     return mount_assets_to(new_hono(server_timing))
 
-        .get('/', CSP, ctx => u.try_catch(async function () {
+        .get('/', u.CSP(), ctx => u.try_catch(async function () {
 
             const latest = await articles.load_either(u.use_clock(ctx));
 
@@ -217,7 +216,7 @@ export async function create_app ({
 
         )
 
-        .on([ 'GET', 'POST' ], '/setup', CSP,
+        .on([ 'GET', 'POST' ], '/setup', u.CSP(),
 
             vValidator('form', v.partial(v.object({
                 secret: trimmed,
@@ -344,26 +343,6 @@ function new_hono (server_timing = false) {
     );
 
 }
-
-
-
-
-
-const CSP = secureHeaders({
-
-    contentSecurityPolicy: {
-
-        defaultSrc: [ `'none'` ],
-        styleSrc: [   `'self'`, `'unsafe-inline'` ],
-        imgSrc: [     `'self'`, `data:` ],
-
-        frameAncestors: [
-            'https://dash.deno.com',  // Deno Deploy Playground
-        ],
-
-    },
-
-});
 
 
 
