@@ -16,7 +16,8 @@ import { make_totp } from './otp.ts';
 import { use_articles } from './articles.ts';
 import { hero_image, pico_css, bundle } from './assets.ts';
 import { Create } from './components/create.tsx';
-import { DraftForm, OtpSetup, Outline } from './components/index.ts';
+import { DraftForm, OtpSetup, AuthKeySetup, Outline
+} from './components/index.ts';
 import type { Predicate } from './common.ts';
 import { inputs, trimmed, nmap, assert, lookup, is_fn, mins
 } from './common.ts';
@@ -212,6 +213,42 @@ export async function create_app ({
                     update={ articles.obsolete }
 
                 />);
+
+            }),
+
+        )
+
+        .get('/setup-auth-key', ctx => u.try_catch(async function () {
+
+            const state = u.UUIDv4();
+            const challenge = u.UUIDv4();
+
+            const { origin, href } = new URL('/setup-auth-key', ctx.req.url);
+
+            const client_id = await u.uuid_v5_url(origin);
+
+            const signing_url = u.compose_signing_url({
+                state,
+                challenge,
+                client_id,
+                site: signing_site,
+                redirect_uri: href,
+                response_mode: 'body',
+            });
+
+            return ctx.redirect(signing_url);
+
+        }))
+
+        .post('/setup-auth-key',
+
+            vValidator('form', u.signing_back),
+
+            ctx => u.try_catch(async function () {
+
+                const props = ctx.req.valid('form');
+
+                return ctx.render(<AuthKeySetup { ...props } />);
 
             }),
 
