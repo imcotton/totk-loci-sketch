@@ -1,6 +1,7 @@
 import type { Hono, Context, Env } from 'hono';
 import { HTTPException }      from 'hono/http-exception';
 import { startTime, endTime } from 'hono/timing';
+import { secureHeaders }      from 'hono/secure-headers';
 
 import { delay } from '@std/async/delay';
 
@@ -526,6 +527,42 @@ export function use_clock (ctx: Context) {
         },
 
     };
+
+}
+
+
+
+
+
+export function CSP <
+
+    P extends Parameters<typeof secureHeaders>[number],
+
+> ({
+
+        scriptSrc = [],
+
+        frameAncestors = [
+            'https://dash.deno.com',  // Deno Deploy Playground
+        ],
+
+}: NonNullable<NonNullable<P>['contentSecurityPolicy'] > = {}) {
+
+    return secureHeaders({
+
+        contentSecurityPolicy: {
+
+            defaultSrc: [ `'none'` ],
+            styleSrc: [   `'self'`, `'unsafe-inline'` ],
+            imgSrc: [     `'self'`, `data:` ],
+
+            scriptSrc,
+
+            frameAncestors,
+
+        },
+
+    });
 
 }
 
