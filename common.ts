@@ -76,7 +76,7 @@ export function mins (n: number) {
 
 export function catch_refine <E> (refine: (err: unknown) => E) {
 
-    return async function <T> (task: () => Promise<T>) {
+    return async function <T> (task: () => T | Promise<T>) {
 
         try {
 
