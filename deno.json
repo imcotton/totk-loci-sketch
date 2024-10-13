@@ -24,6 +24,7 @@
   "tasks": {
     "verify": "deno publish --dry-run --allow-dirty",
     "dev": "deno serve --env -E=MATAROA_API_KEY,OTP_SECRET -N=mataroa.blog:443,esm.sh:443 --watch mod.ts",
+    "lint": "deno lint './**/*.ts' './**/*.tsx'",
     "post": "./draft.ts"
   },
   "unstable": [
