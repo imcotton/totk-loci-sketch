@@ -546,7 +546,7 @@ export function CSP <
             'https://dash.deno.com',  // Deno Deploy Playground
         ],
 
-}: NonNullable<NonNullable<P>['contentSecurityPolicy'] > = {}) {
+}: NonNullable<NonNullable<P>['contentSecurityPolicy']> = {}) {
 
     return secureHeaders({
 
