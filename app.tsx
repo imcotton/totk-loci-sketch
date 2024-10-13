@@ -27,14 +27,6 @@ import * as u from './utils.ts';
 
 
 
-const otp_digit = 6;
-
-const { verify, setup_uri } = make_totp(otp_digit);
-
-
-
-
-
 export async function create_app ({
 
         kv, store,
@@ -328,6 +320,14 @@ function new_validator_hook (
     }
 
 }
+
+
+
+
+
+const otp_digit = 6;
+
+const { verify, setup_uri } = make_totp(otp_digit);
 
 
 
