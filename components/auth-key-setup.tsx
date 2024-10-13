@@ -76,11 +76,12 @@ export function AuthKeySetup ({
 
 
 
+
 const use_client: string = `
 
-    const buttons = document.querySelectorAll('button[data-copy-txt]');
+    const query = 'button[data-copy-txt]';
 
-    for (const btn of buttons) {
+    for (const btn of document.querySelectorAll(query)) {
 
         btn.addEventListener('click', async function () {
 
