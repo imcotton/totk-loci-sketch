@@ -261,9 +261,11 @@ export async function create_app ({
 
             ctx => u.try_catch(async function () {
 
+                const { url, path } = ctx.req;
+
                 const {
                     secret = u.UUIDv4(),
-                    issuer = new URL(ctx.req.url).hostname,
+                    issuer = new URL(url).hostname,
                     account = 'admin',
                     otp,
                 } = ctx.req.valid('form');
@@ -274,7 +276,7 @@ export async function create_app ({
 
                 const opts = { secret, issuer, account, href, correct };
 
-                return ctx.render(<OtpSetup action="/setup" { ...opts } />);
+                return ctx.render(<OtpSetup action={ path } { ...opts } />);
 
             }),
 
