@@ -107,7 +107,7 @@ export async function create_app ({
 
             vValidator('form', u.local(inputs), new_validator_hook),
 
-            ctx => u.try_catch(async function () {
+            ctx => u.try_catch(function () {
 
                 assert(token?.length, 'API token is missing or invalid');
 
@@ -240,7 +240,7 @@ export async function create_app ({
 
             vValidator('form', u.signing_back),
 
-            ctx => u.try_catch(async function () {
+            ctx => u.try_catch(function () {
 
                 const props = ctx.req.valid('form');
 
