@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 
 import { either as E } from './common.ts';
-import { type Clock } from './utils.ts';
+import type { Clock } from './utils.ts';
 
 
 

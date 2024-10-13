@@ -14,7 +14,7 @@ import { NAMESPACE_URL } from '@std/uuid/constants';
 
 import * as v from 'valibot';
 
-import { type Mount } from './assets.ts';
+import type { Mount } from './assets.ts';
 import { catch_refine, text_encode, inputs, mins } from './common.ts';
 
 export { otpsecret } from './otpsec.ts';
