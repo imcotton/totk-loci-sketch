@@ -12,6 +12,7 @@ export type Predicate <T> = (_: T) => boolean;
 
 
 
+// deno-lint-ignore ban-types -- it's general function assertion
 export function is_fn (fn: unknown): fn is Function {
 
     return typeof fn === 'function';
