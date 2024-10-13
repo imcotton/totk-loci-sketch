@@ -18,6 +18,9 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Run Lint
+        run: deno task lint
+
       - name: Run publish --dry-run
         run: deno publish --dry-run
 
